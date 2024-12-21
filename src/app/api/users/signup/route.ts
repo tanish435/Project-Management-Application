@@ -3,7 +3,15 @@ import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/models/User.model";
 import { ApiError } from "@/utils/ApiError";
 import { ApiResponse } from "@/utils/ApiResponse";
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
+
+function getInitials(name: string) {
+    if (!name || typeof name !== 'string') return ''; // Fallback if name is invalid
+    const nameSplit = name.split(' ');
+    const firstWord = nameSplit[0] ? nameSplit[0].charAt(0) : '';
+    const secondWord = nameSplit[1] ? nameSplit[1].charAt(0) : '';
+    return (firstWord + secondWord).toUpperCase();
+}
 
 export async function POST(req: Request) {
     await dbConnect()
@@ -23,19 +31,13 @@ export async function POST(req: Request) {
         if (existingUserVerifiedByUsername) {
             const errResponse = new ApiResponse(400, null, "Username already taken")
             return new Response(JSON.stringify(errResponse), {
-                status: errResponse.statusCode
+                status: errResponse.statusCode,
+                headers: { 'Content-Type': 'application/json' }
             })
         }
 
         const existingUserByEmail = await UserModel.findOne({ email })
         const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-        function getInitials(name: string) {
-            const nameSplit = name.split(' ')
-            const firstWord = nameSplit[0] ? nameSplit[0].charAt(0) : ""
-            const secondWord = nameSplit[1] ? nameSplit[1].charAt(1) : ""
-            return (firstWord + secondWord).toUpperCase()
-        }
 
         const initials = getInitials(fullName)
 
@@ -43,7 +45,8 @@ export async function POST(req: Request) {
             if (existingUserByEmail.isVerified) {
                 const errResponse = new ApiResponse(400, null, "User already exists with this email")
                 return new Response(JSON.stringify(errResponse), {
-                    status: errResponse.statusCode
+                    status: errResponse.statusCode,
+                    headers: { 'Content-Type': 'application/json' }
                 })
             }
 
@@ -82,21 +85,24 @@ export async function POST(req: Request) {
         if(emailRes.status !== 200 ) {
             const emailRes = new ApiResponse(400, null, "Failed to send message")
             return new Response(JSON.stringify(emailRes), {
-                status: emailRes.statusCode
+                status: emailRes.statusCode,
+                headers: { 'Content-Type': 'application/json' }
             })
         }
 
         const response = new ApiResponse(200, null, "User resgistered successfully. Verify your email")
         return new Response(JSON.stringify(response), {
-            status: response.statusCode
+            status: response.statusCode,
+            headers: { 'Content-Type': 'application/json' }
         })
 
     } catch (error) {
         console.log("Error registering user");
-        const errMsg = new ApiResponse(500, null, "Internal Server Error")
+        const errMsg = new ApiResponse(500, null, `Internal Server Error, ${error}`)
 
         return new Response(JSON.stringify(errMsg), {
-            status: errMsg.statusCode
+            status: errMsg.statusCode,
+            headers: { 'Content-Type': 'application/json' }
         })
     }
 }
