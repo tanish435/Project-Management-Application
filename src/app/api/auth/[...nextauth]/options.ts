@@ -1,4 +1,4 @@
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, Profile } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from 'bcryptjs'
 import UserModel from "@/models/User.model";
@@ -36,7 +36,14 @@ export const authOptions: NextAuthOptions = {
                     const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password)
 
                     if (isPasswordCorrect) {
-                        return user;
+                        return {
+                            _id: user._id,
+                            isVerified: user.isVerified,
+                            username: user.username,
+                            name: user.fullName,
+                            email: user.email,
+                            image: user.avatar,
+                        };
                     } else {
                         throw new ApiError(400, "Incorrect Password")
                     }
@@ -49,15 +56,21 @@ export const authOptions: NextAuthOptions = {
         }),
         Google({
             clientId: process.env.GOOGLE_CLIENT_ID as string,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+            authorization: {
+                params: {
+                    scope: "openid email profile",
+                },
+            },
         })
     ],
     callbacks: {
-        async jwt({ token, user }) {
+        async jwt({ token, user, profile }) {
             if (user) {
-                token._id = user._id.toString()
+                token._id = user._id
                 token.isVerified = user.isVerified
                 token.username = user.username
+                token.sub = profile?.sub
             }
 
             return token
@@ -67,6 +80,7 @@ export const authOptions: NextAuthOptions = {
                 session.user._id = token._id
                 session.user.isVerified = token.isVerified
                 session.user.username = token.username
+                session.user.sub = token.sub as string
             }
 
             return session

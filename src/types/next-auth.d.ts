@@ -7,6 +7,7 @@ declare module 'next-auth' {
             _id: string;
             isVerified: boolean;
             username: string
+            sub: string
         } & DefaultSession['user']
     }
 
@@ -14,6 +15,7 @@ declare module 'next-auth' {
         _id: string;
         isVerified: boolean;
         username: string
+        sub: string
     }
 }
 
