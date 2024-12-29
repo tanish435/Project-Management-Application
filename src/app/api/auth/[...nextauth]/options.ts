@@ -34,19 +34,19 @@ export const authOptions: NextAuthOptions = {
                     }
 
                     const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password)
-
-                    if (isPasswordCorrect) {
-                        return {
-                            _id: user._id,
-                            isVerified: user.isVerified,
-                            username: user.username,
-                            name: user.fullName,
-                            email: user.email,
-                            image: user.avatar,
-                        };
-                    } else {
-                        throw new ApiError(400, "Incorrect Password")
+                    if (!isPasswordCorrect) {
+                        throw new ApiError(400, "Incorrect password");
                     }
+
+                    return {
+                        _id: user._id,
+                        isVerified: user.isVerified,
+                        username: user.username,
+                        name: user.fullName,
+                        email: user.email,
+                        image: user.avatar,
+                    };
+
                 } catch (error: any) {
                     console.log(error);
 
@@ -67,10 +67,47 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         async jwt({ token, user, profile }) {
             if (user) {
-                token._id = user._id
-                token.isVerified = user.isVerified
-                token.username = user.username
                 token.sub = profile?.sub
+
+                await dbConnect()
+                let existingUser = await UserModel.findOne({ sub: token.sub });
+                if (!existingUser) {
+                    // Generate unique username for google users
+                    const baseUsername = user.name?.toLowerCase().replace(/\s+/g, "_") || "user";
+                    let uniqueUsername = baseUsername;
+                    let suffix = 0;
+
+                    // Ensure username is unique
+                    while (await UserModel.findOne({ username: uniqueUsername })) {
+                        suffix += 1;
+                        
+                        const randomSuffix = Math.floor(Math.random() * 1000); // Random number between 0-999
+                        uniqueUsername = `${baseUsername}_${suffix}_${randomSuffix}`;
+                    }
+
+                    const initials = user.name?.split(" ").map(word => word[0]).join("").toUpperCase() || "";
+                    existingUser = await UserModel.create({
+                        sub: token.sub,
+                        username: uniqueUsername,
+                        fullName: user.name,
+                        isVerified: true,
+                        avatar: user.image,
+                        email: user.email,
+                        initials: initials,
+                    });
+                }
+
+                token._id = existingUser._id as string
+                token.isVerified = existingUser.isVerified
+                token.username = existingUser.username
+                token.image = existingUser.avatar as string
+            }
+
+            if (token._id) {
+                const updatedUser = await UserModel.findById(token._id)
+                if (updatedUser) {
+                    token.image = updatedUser.avatar
+                }
             }
 
             return token
@@ -81,6 +118,7 @@ export const authOptions: NextAuthOptions = {
                 session.user.isVerified = token.isVerified
                 session.user.username = token.username
                 session.user.sub = token.sub as string
+                session.user.image = token.image
             }
 
             return session

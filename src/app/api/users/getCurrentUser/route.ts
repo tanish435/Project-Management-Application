@@ -3,9 +3,21 @@ import UserModel from "@/models/User.model";
 import { ApiError } from "@/utils/ApiError";
 import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose, { isValidObjectId } from "mongoose";
+import { User, getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/options";
 
 export async function GET(req: Request) {
     await dbConnect()
+    const session = await getServerSession(authOptions)
+    const user: User = session?.user as User
+
+    if(!session || !session.user) {
+        const errResponse = new ApiResponse(401, null, "Not authenticated")
+        return new Response(JSON.stringify(errResponse), {
+            status: errResponse.statusCode,
+            headers: { 'Content-Type': 'application/json' }
+        })
+    }
 
     try {
         const {searchParams} = new URL(req.url)

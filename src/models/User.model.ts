@@ -12,7 +12,64 @@ export interface User extends Document {
     isVerified: boolean;
     boards: Types.ObjectId[];
     collections: Types.ObjectId[];
+    sub: string
 }
+
+// const UserSchema: Schema<User> = new Schema({
+//     username: {
+//         type: String,
+//         required: [true, "Username is required"],
+//         trim: true,
+//         unique: true,
+//     },
+//     fullName: {
+//         type: String,
+//         required: [true, "Full name is required"],
+//     },
+//     initials: {
+//         type: String,
+//         required: [true, "Choose valid initials"],
+//         uppercase: true
+//     },
+//     email: {
+//         type: String,
+//         required: [true, "Email is required"],
+//         unique: true,
+//         match: [/.+\@.+\..+/, 'please use a valid email address']
+//     },
+//     password: {
+//         type: String,
+//         required: [true, "Password is required"],
+//     },
+//     avatar: {
+//         type: String,
+//     },
+//     verifyCode: {
+//         type: String,
+//         required: [true, "Verify code is required"],
+//     },
+//     verifyCodeExpiry: {
+//         type: Date,
+//         required: [true, "Verify code expiry is required"],
+//     },
+//     isVerified: {
+//         type: Boolean,
+//         default: false
+//     },
+//     boards: [{
+//         type: Schema.Types.ObjectId,
+//         ref: 'Board'
+//     }],
+//     collections: [{
+//         type: Schema.Types.ObjectId,
+//         ref: 'Collection'
+//     }],
+//     sub: {
+//         type: String,
+//         unique: true,
+//         sparse: true
+//     }
+// }, {timestamps: true})
 
 const UserSchema: Schema<User> = new Schema({
     username: {
@@ -27,8 +84,8 @@ const UserSchema: Schema<User> = new Schema({
     },
     initials: {
         type: String,
-        required: [true, "Choose valid initials"],
-        uppercase: true
+        uppercase: true,
+        default: null, // Optional for Google users
     },
     email: {
         type: String,
@@ -38,18 +95,19 @@ const UserSchema: Schema<User> = new Schema({
     },
     password: {
         type: String,
-        required: [true, "Password is required"],
+        default: null, // Optional for Google users
     },
     avatar: {
         type: String,
+        default: null, // Optional
     },
     verifyCode: {
         type: String,
-        required: [true, "Verify code is required"],
+        default: null, // Optional
     },
     verifyCodeExpiry: {
         type: Date,
-        required: [true, "Verify code expiry is required"],
+        default: null, // Optional
     },
     isVerified: {
         type: Boolean,
@@ -62,8 +120,14 @@ const UserSchema: Schema<User> = new Schema({
     collections: [{
         type: Schema.Types.ObjectId,
         ref: 'Collection'
-    }]
-}, {timestamps: true})
+    }],
+    sub: {
+        type: String, // Added to support Google users (unique identifier)
+        unique: true,
+        sparse: true, // Allows null values for non-Google users
+    }
+}, { timestamps: true });
+
 
 const UserModel = (mongoose.models.User as mongoose.Model<User>) || mongoose.model<User>("User", UserSchema)
 
