@@ -9,7 +9,7 @@ import { authOptions } from "../../auth/[...nextauth]/options";
 export async function GET(req: Request) {
     await dbConnect()
     const session = await getServerSession(authOptions)
-    const user: User = session?.user as User
+    const sessionUser: User = session?.user as User
 
     if(!session || !session.user) {
         const errResponse = new ApiResponse(401, null, "Not authenticated")
@@ -20,16 +20,8 @@ export async function GET(req: Request) {
     }
 
     try {
-        const {searchParams} = new URL(req.url)
-        const userId = searchParams.get('userId')
-
-        if (!userId || !isValidObjectId(userId)) {
-            throw new ApiError(400, 'Invalid user ID')
-        }
         
-        const validUserId = new mongoose.Types.ObjectId(userId)
-
-        const user = await UserModel.find(validUserId).select({
+        const user = await UserModel.findById(new mongoose.Types.ObjectId(sessionUser._id)).select({
             username: 1,
             fullName: 1,
             initials: 1,

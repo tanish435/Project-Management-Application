@@ -12,6 +12,7 @@ export interface User extends Document {
     isVerified: boolean;
     boards: Types.ObjectId[];
     collections: Types.ObjectId[];
+    starredBoards: Types.ObjectId[];
     sub: string
 }
 
@@ -120,6 +121,10 @@ const UserSchema: Schema<User> = new Schema({
     collections: [{
         type: Schema.Types.ObjectId,
         ref: 'Collection'
+    }],
+    starredBoards: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Board'
     }],
     sub: {
         type: String, // Added to support Google users (unique identifier)
