@@ -4,6 +4,7 @@ export interface Card extends Document {
     name: string;
     description: string;
     position: number;
+    slug: string;
     dueDate: Date;
     createdBy: Types.ObjectId;
     list: Types.ObjectId;
@@ -24,6 +25,10 @@ const CardSchema: Schema<Card> = new Schema ({
     position: {
         type: Number,
     },
+    slug:{
+        type: String,
+        required: [true, "Card slug is required"]
+    },
     dueDate: {
         type: Date,
     },
@@ -34,6 +39,7 @@ const CardSchema: Schema<Card> = new Schema ({
     list: {
         type: Schema.Types.ObjectId,
         ref: 'List',
+        required: [true, "List ID is required to create card"]
     },
     members: [{
         type: Schema.Types.ObjectId,
