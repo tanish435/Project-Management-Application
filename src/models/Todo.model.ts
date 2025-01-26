@@ -3,7 +3,8 @@ import mongoose, { Document, Model, Schema, Types } from "mongoose";
 export interface Todo extends Document {
     content: string;
     complete: boolean;
-    pos: number
+    pos: number;
+    assignedTo: Types.ObjectId[];
     createdBy: Types.ObjectId;
 }
 
@@ -19,6 +20,10 @@ const TodoSchema: Schema<Todo> = new Schema ({
     pos: {
         type: Number,
     },
+    assignedTo: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+    }],
     createdBy: {
         type: Schema.Types.ObjectId,
         ref: 'User',
