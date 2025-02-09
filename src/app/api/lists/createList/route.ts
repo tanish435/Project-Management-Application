@@ -60,21 +60,38 @@ export async function POST(req: Request) {
         session.startTransaction()
 
         try {
-            const list = await ListModel.create({
+            const lastList = await ListModel.findOne({board: boardId})
+                .sort({position: -1})
+                .session(session);
+
+            const expectedPosition = lastList ? lastList.position + 1 : 0  
+            
+            if(expectedPosition !== pos) {
+                await session.abortTransaction()
+                await session.endSession()
+
+                const errResponse = new ApiResponse(400, null, `Invalid position. The next position should be ${expectedPosition}`);
+                return new Response(JSON.stringify(errResponse), {
+                    status: errResponse.statusCode,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
+            
+            const [list] = await ListModel.create([{
                 name,
-                pos,
+                position: pos,
                 board: boardId,
                 createdBy: user._id,
                 cards: [],
-            }, { session })
+            }], { session })
 
-            board.lists.push(list[0]._id as mongoose.Types.ObjectId)
+            board.lists.push(list._id as mongoose.Types.ObjectId)
             await board.save({ session })
 
             await session.commitTransaction()
             session.endSession()
 
-            const successResponse = new ApiResponse(200, list[0], "List created successfully");
+            const successResponse = new ApiResponse(200, list, "List created successfully");
             return new Response(JSON.stringify(successResponse), {
                 status: successResponse.statusCode,
                 headers: { "Content-Type": "application/json" },

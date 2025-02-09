@@ -1,13 +1,16 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
+import BoardModel from "@/models/Board.model";
 import ListModel from "@/models/List.model";
 import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
-import { getServerSession } from "next-auth";
+import { getServerSession, User } from "next-auth";
 
-export async function GET(req: Request, { params }: { params: { listId: string } }) {
+export async function GET(req: Request, { params }: { params: { listId: string, boardId: string } }) {
     await dbConnect()
     const session = await getServerSession(authOptions)
+    const user: User = session?.user as User
+
     if (!session || !session.user) {
         const errResponse = new ApiResponse(401, null, "Not authenticated");
         return new Response(JSON.stringify(errResponse), {
@@ -16,7 +19,7 @@ export async function GET(req: Request, { params }: { params: { listId: string }
         });
     }
 
-    const { listId } = params;
+    const { listId, boardId } = params
     if (!mongoose.Types.ObjectId.isValid(listId)) {
         const errResponse = new ApiResponse(400, null, "Invalid list ID");
         return new Response(JSON.stringify(errResponse), {
@@ -24,8 +27,32 @@ export async function GET(req: Request, { params }: { params: { listId: string }
             headers: { "Content-Type": "application/json" },
         });
     }
+    if (!mongoose.Types.ObjectId.isValid(boardId)) {
+        const errResponse = new ApiResponse(400, null, "Invalid board ID");
+        return new Response(JSON.stringify(errResponse), {
+            status: errResponse.statusCode,
+            headers: { "Content-Type": "application/json" },
+        });
+    }
 
     try {
+        const board = await BoardModel.findById(boardId)
+        if (!board) {
+            const errResponse = new ApiResponse(404, null, "Board not found");
+            return new Response(JSON.stringify(errResponse), {
+                status: errResponse.statusCode,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+
+        if (!board.members.some((memberId: mongoose.Types.ObjectId) => memberId.equals(user._id))) {
+            const errResponse = new ApiResponse(403, null, "You are not authorised to access list");
+            return new Response(JSON.stringify(errResponse), {
+                status: errResponse.statusCode,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+
         const list = await ListModel.aggregate([
             {
                 $match: {_id: new mongoose.Types.ObjectId(listId)}
@@ -122,6 +149,8 @@ export async function GET(req: Request, { params }: { params: { listId: string }
                     listCreatedBy: 1,
                     board: 1,
                     position: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
                 }
             }
         ])
