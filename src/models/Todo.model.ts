@@ -1,4 +1,5 @@
 import mongoose, { Document, Model, Schema, Types } from "mongoose";
+import ChecklistModel from "./Checklist.model";
 
 export interface Todo extends Document {
     content: string;
@@ -6,6 +7,7 @@ export interface Todo extends Document {
     pos: number;
     assignedTo: Types.ObjectId[];
     createdBy: Types.ObjectId;
+    checklist: Types.ObjectId;
 }
 
 const TodoSchema: Schema<Todo> = new Schema ({
@@ -20,6 +22,10 @@ const TodoSchema: Schema<Todo> = new Schema ({
     pos: {
         type: Number,
     },
+    checklist: {
+        type: Schema.Types.ObjectId,
+        ref: 'Checklist',
+    },
     assignedTo: [{
         type: Schema.Types.ObjectId,
         ref: 'User',
@@ -29,6 +35,24 @@ const TodoSchema: Schema<Todo> = new Schema ({
         ref: 'User',
     }
 }, {timestamps: true})
+
+TodoSchema.pre("findOneAndDelete", async function(next) {
+    const todoId = this.getQuery()._id
+
+    const checklist = await ChecklistModel.findOneAndUpdate(
+        {todos: todoId},
+        {
+            $pull: {todos: todoId}
+        },
+        {new: true}
+    )
+
+    if(!checklist) {
+        return next(new Error("Checklist not found"))
+    }
+
+    next()
+})
 
 const TodoModel = (mongoose.models.Todo as Model<Todo>) || mongoose.model("Todo", TodoSchema)
 
