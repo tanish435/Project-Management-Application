@@ -69,7 +69,7 @@ export async function PATCH(req: Request, { params }: { params: { cardId: string
             });
         }
 
-        if(!authorisedUsers.includes(memberId)) {
+        if(!authorisedUsers.some((id: mongoose.Types.ObjectId) => id.equals(memberId))) {
             const errResponse = new ApiResponse(400, null, "User not present in this board");
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,

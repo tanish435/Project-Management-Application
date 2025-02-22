@@ -14,7 +14,7 @@ export function InvitationEmail({ email, invitedBy, boardName }: InvitationEmail
     return (
         <Html lang="en">
             <Head>
-                <title>Invitation by {invitedBy}</title>
+                <title>{`Invitation by ${invitedBy}`}</title>
                 <Font
                     fontFamily="Roboto"
                     fallbackFontFamily="Verdana"

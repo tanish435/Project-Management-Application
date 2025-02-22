@@ -1,21 +1,22 @@
 import mongoose, { Document, Model, Schema, Types } from "mongoose";
 import ListModel from "./List.model";
 import CardModel from "./Card.model";
-import AttachmentListModel from "./AttachmentList.model";
 import CommentModel from "./Comment.model";
 import ChecklistModel from "./Checklist.model";
 import TodoModel from "./Todo.model";
+import AttachmentModel from "./Attachment.model";
+import { deleteFromCloudinary } from "@/utils/cloudinary";
 
 export interface Board extends Document {
     name: string;
     bgColor: string;
     url: string;  // Check : How to create unique url for every board
     admin: Types.ObjectId;
-    members: Types.ObjectId[]; 
+    members: Types.ObjectId[];
     lists: Types.ObjectId[];
 }
 
-const BoardSchema: Schema<Board> = new Schema ({
+const BoardSchema: Schema<Board> = new Schema({
     name: {
         type: String,
         required: [true, 'Board name is required']
@@ -40,36 +41,48 @@ const BoardSchema: Schema<Board> = new Schema ({
         type: Schema.Types.ObjectId,
         ref: 'List'
     }]
-}, {timestamps: true})
+}, { timestamps: true })
 
-BoardSchema.pre('findOneAndDelete', async function(next) {
+BoardSchema.pre('findOneAndDelete', async function (next) {
     const boardId = this.getQuery()._id
 
-    const lists = await ListModel.find({board: boardId})
+    const session = await mongoose.startSession()
+    session.startTransaction()
 
-    for(const list of lists) {
-        const cards = await CardModel.find({list: list._id})
+    try {
+        const lists = await ListModel.find({ board: boardId }).session(session)
+        const listIds = lists.map(list => list._id);
 
-        for(const card of cards) {
-            await AttachmentListModel.deleteMany({_id: {$in: card.attachments}})
+        const cards = await CardModel.find({list: {$in: listIds}}).session(session)
+        const cardIds = cards.map(card => card._id)
 
-            await CommentModel.deleteMany({card: card._id})
-
-            const checklists = await ChecklistModel.find({_id: {$in: card.checklists}})
-
-            for(const checklist of checklists) {
-                await TodoModel.deleteMany({_id: {$in: checklist.todos}})
+        const attachements = await AttachmentModel.find({card: {$in: cardIds}}).session(session)
+        for(const attachement of attachements) {
+            if(!attachement.isWebsiteLink) {
+                await deleteFromCloudinary(attachement.url)
             }
-
-            await ChecklistModel.deleteMany({_id: {$in: card.checklists}})
         }
 
-        await CardModel.deleteMany({list: list._id})
+        await AttachmentModel.deleteMany({card: {$in: cardIds}}).session(session)
+        await CommentModel.deleteMany({card: {in: cardIds}}).session(session)
+
+        const checklists = await ChecklistModel.find({card: {$in: cardIds}}).session(session)
+        const checklistIds = checklists.map(checklist => checklist._id)
+
+        await TodoModel.deleteMany({checklist: {$in: checklistIds}}).session(session)
+        await ChecklistModel.deleteMany({card: {$in: cardIds}}).session(session)
+
+        await CardModel.deleteMany({list: {$in: listIds}}).session(session)
+        await ListModel.deleteMany({board: boardId}).session(session)
+
+        await session.commitTransaction();
+        session.endSession();
+        next()
+    } catch (error: any) {
+        await session.abortTransaction();
+        session.endSession();
+        next(error);
     }
-
-    await ListModel.deleteMany({board: boardId})
-
-    next();
 })
 
 const BoardModel = (mongoose.models.Board as Model<Board>) || mongoose.model("Board", BoardSchema)

@@ -6,9 +6,9 @@ import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
 
-export async function DELETE(req: Request, {params}: {params: {boardId: string}}) {
+export async function DELETE(req: Request, { params }: { params: { boardId: string } }) {
     await dbConnect()
-    const {boardId} = params
+    const { boardId } = params
     const session = await getServerSession(authOptions)
     const user: User = session?.user as User;
 
@@ -29,31 +29,36 @@ export async function DELETE(req: Request, {params}: {params: {boardId: string}}
     }
 
     try {
-        const deletedBoard = await BoardModel.findOneAndDelete({
-            $and: [{_id: boardId}, {admin: user._id}]
-        });
+        const board = await BoardModel.findById(boardId)
+        if (!board) {
+            const errResponse = new ApiResponse(404, null, "Board not found")
+            return new Response(JSON.stringify(errResponse), {
+                status: errResponse.statusCode,
+                headers: { 'Content-Type': 'application/json' }
+            })
+        }
 
-        if (!deletedBoard) {
-            const errResponse = new ApiResponse(403, null, "You are not authorized to delete this board or it does not exist");
+        if(!board.admin.equals(user._id)) {
+            const errResponse = new ApiResponse(403, null, "You are not authorized to delete this board");
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,
                 headers: { 'Content-Type': 'application/json' },
             });
         }
 
-        const updateUser = await UserModel.findOneAndUpdate(
-            { _id: user._id },
-            { $pull: { boards: boardId } },
-            { new: true }
-        );
+        const session = await mongoose.startSession()
+        session.startTransaction()
 
-        if(!updateUser) {
-            const errResponse = new ApiResponse(500, null, "Failed to delete board from user")
-            return new Response(JSON.stringify(errResponse), {
-                status: errResponse.statusCode,
-                headers: { 'Content-Type': 'application/json' }
-            })
-        }
+        const deletedBoard = await BoardModel.findByIdAndDelete(boardId, { session });
+
+        await UserModel.updateMany(
+            {$or: [{boards: boardId}, {starredBoards: boardId}]},
+            {$pull: {boards: boardId, starredBoards: boardId}},
+            {session}
+        )
+
+        await session.commitTransaction()
+        session.endSession()
 
         const successResponse = new ApiResponse(200, deletedBoard, "Board deleted successfully")
         return new Response(JSON.stringify(successResponse), {

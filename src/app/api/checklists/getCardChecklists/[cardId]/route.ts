@@ -19,18 +19,11 @@ export async function GET(req: Request, {params}: {params: {cardId: string}}) {
     }
 
     const { cardId } = params
-    if (!mongoose.Types.ObjectId.isValid(cardId)) {
-        const errResponse = new ApiResponse(400, null, "Invalid list ID");
-        return new Response(JSON.stringify(errResponse), {
-            status: errResponse.statusCode,
-            headers: { "Content-Type": "application/json" },
-        });
-    }
 
     try {
         const validUsers = await CardModel.aggregate([
             {
-                $match: { $or: [{_id: cardId}, {slug: cardId}] }
+                $match: { $or: [{_id: new mongoose.Types.ObjectId(cardId)}, {slug: cardId}] }
             },
             {
                 $lookup: {
@@ -140,7 +133,10 @@ export async function GET(req: Request, {params}: {params: {cardId: string}}) {
                                             content: 1,
                                             complete: 1,
                                             pos: 1,
-                                            createdBy: 1
+                                            createdBy: 1,
+                                            assignedTo: 1,
+                                            createdAt: 1,
+                                            updatedAt: 1
                                         }
                                     }
                                 ]

@@ -5,7 +5,7 @@ import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
 
-export async function PATCH(req: Request, {params}: {params: {cardId: string}}) {
+export async function DELETE(req: Request, {params}: {params: {cardId: string}}) {
     await dbConnect()
     const session = await getServerSession(authOptions);
     const user: User = session?.user as User
@@ -18,9 +18,9 @@ export async function PATCH(req: Request, {params}: {params: {cardId: string}}) 
         });
     }
 
-    const { cardId } = params
+    const { cardId} = params
     if (!mongoose.Types.ObjectId.isValid(cardId)) {
-        const errResponse = new ApiResponse(400, null, "Invalid list ID");
+        const errResponse = new ApiResponse(400, null, "Invalid card ID");
         return new Response(JSON.stringify(errResponse), {
             status: errResponse.statusCode,
             headers: { "Content-Type": "application/json" },
@@ -28,16 +28,6 @@ export async function PATCH(req: Request, {params}: {params: {cardId: string}}) 
     }
 
     try {
-        const {position} = await req.json()
-        const pos = Number(position)
-        if (isNaN(pos) || pos < 0) {
-            const errResponse = new ApiResponse(400, null, "Invalid position index");
-            return new Response(JSON.stringify(errResponse), {
-                status: errResponse.statusCode,
-                headers: { "Content-Type": "application/json" },
-            });
-        }
-
         const validUsers = await CardModel.aggregate([
             {
                 $match: { _id: new mongoose.Types.ObjectId(cardId) }
@@ -75,40 +65,36 @@ export async function PATCH(req: Request, {params}: {params: {cardId: string}}) 
                 status: errResponse.statusCode,
                 headers: { "Content-Type": "application/json" },
             });
-        }        
+        }
 
         const authorisedUsers = validUsers[0]?.listInfo[0]?.board[0]?.members || []
         if (!authorisedUsers.some((memberId: mongoose.Types.ObjectId) => memberId.equals(user._id))) {
-            const errResponse = new ApiResponse(400, null, "You are not authorised to view this card");
+            const errResponse = new ApiResponse(403, null, "You are not authorised to view this card");
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,
                 headers: { "Content-Type": "application/json" },
             });
         }
 
-        const card = await CardModel.findByIdAndUpdate(
-            cardId,
-            {
-                $set: {position: pos}
-            },
-            {new: true}
-        )
+        const deleteCard = await CardModel.findOneAndDelete({
+            _id: cardId
+        })
 
-        if (!card) {
-            const errResponse = new ApiResponse(400, null, "Failed to update card position");
+        if(!deleteCard) {
+            const errResponse = new ApiResponse(404, null, "Failed to delete card");
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,
                 headers: { "Content-Type": "application/json" },
             });
         }
 
-        const response = new ApiResponse(200, card, "Card position updated successfully")
-        return new Response(JSON.stringify(response), {
-            status: response.statusCode,
+        const successResponse = new ApiResponse(200, deleteCard, "Card deleted successfully")
+        return new Response(JSON.stringify(successResponse), {
+            status: successResponse.statusCode,
             headers: { 'Content-Type': 'application/json' }
         })
     } catch (error) {
-        console.log("Error updating card position", error);
+        console.log("Error deleting card:", error);
         const errResponse = new ApiResponse(500, null, "Internal server error");
         return new Response(JSON.stringify(errResponse), {
             status: errResponse.statusCode,

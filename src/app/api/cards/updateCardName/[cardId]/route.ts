@@ -70,7 +70,7 @@ export async function PATCH(req: Request, { params }: { params: { cardId: string
 
         const authorisedUsers = validUsers[0]?.listInfo[0]?.board[0]?.members || []
         if (!authorisedUsers.some((memberId: mongoose.Types.ObjectId) => memberId.equals(user._id))) {
-            const errResponse = new ApiResponse(400, null, "You are not authorised to view this card");
+            const errResponse = new ApiResponse(400, null, "You are not authorised to update card name");
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,
                 headers: { "Content-Type": "application/json" },

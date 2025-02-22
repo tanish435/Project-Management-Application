@@ -28,6 +28,46 @@ export async function GET(req: Request, { params }: { params: { cardId: string }
     }
 
     try {
+        const validUsers = await CardModel.aggregate([
+            {
+                $match: { _id: new mongoose.Types.ObjectId(cardId) }
+            },
+            {
+                $lookup: {
+                    from: "lists",
+                    localField: "list",
+                    foreignField: "_id",
+                    as: "listInfo",
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: "boards",
+                                localField: "board",
+                                foreignField: "_id",
+                                as: "board",
+                                pipeline: [
+                                    {
+                                        $project: {
+                                            members: 1,
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ])
+
+        const authorisedUsers = validUsers[0]?.listInfo[0]?.board[0]?.members || []
+        if (!authorisedUsers.some((memberId: mongoose.Types.ObjectId) => memberId.equals(user._id))) {
+            const errResponse = new ApiResponse(400, null, "You are not authorised to fetch card");
+            return new Response(JSON.stringify(errResponse), {
+                status: errResponse.statusCode,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+        
         const card = await CardModel.aggregate([
             {
                 $match: { _id: new mongoose.Types.ObjectId(cardId) }
@@ -101,13 +141,17 @@ export async function GET(req: Request, { params }: { params: { cardId: string }
                     _id: 1,
                     description: 1,
                     name: 1,
+                    list: 1,
                     position: 1,
+                    slug: 1,
                     members: 1,
                     createdBy: 1,
                     dueDate: 1,
                     comments: { $cond: { if: { $isArray: "$comments" }, then: { $size: "$comments" }, else: 0 } },
                     checklists: { $cond: { if: { $isArray: "$checklists" }, then: { $size: "$checklists" }, else: 0 } },
                     attachments: { $cond: { if: { $isArray: "$attachments" }, then: { $size: "$attachments" }, else: 0 } },
+                    createdAt: 1,
+                    updatedAt: 1
                 }
             }
         ])

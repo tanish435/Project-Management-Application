@@ -28,6 +28,15 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
     }
 
     try {
+        const slugCard = await CardModel.findOne({ slug })
+        if (!slugCard) {
+            const errResponse = new ApiResponse(404, null, "Card not found");
+            return new Response(JSON.stringify(errResponse), {
+                status: errResponse.statusCode,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+        
         const validUsers = await CardModel.aggregate([
             {
                 $match: { slug }
@@ -101,47 +110,34 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
                     pipeline: [
                         {
                             $lookup: {
-                                from: "attachmentLists",
-                                localField: "attachmentList",
+                                from: "users",
+                                localField: "attachedBy",
                                 foreignField: "_id",
-                                as: "attachmentLists",
+                                as: "attachedBy",
                                 pipeline: [
-                                    {
-                                        $lookup: {
-                                            from: "users",
-                                            localField: "attachedBy",
-                                            foreignField: "_id",
-                                            as: "attachedBy",
-                                            pipeline: [
-                                                {
-                                                    $project: {
-                                                        _id: 1,
-                                                        username: 1,
-                                                        fullName: 1,
-                                                        email: 1,
-                                                        avatar: 1,
-                                                        initials: 1,
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    },
                                     {
                                         $project: {
                                             _id: 1,
-                                            url: 1,
-                                            isWebsiteLink: 1,
-                                            attachedBy: 1
+                                            username: 1,
+                                            fullName: 1,
+                                            email: 1,
+                                            avatar: 1,
+                                            initials: 1,
                                         }
                                     }
                                 ]
                             }
-                        },
+                        },                     
                         {
                             $project: {
                                 _id: 1,
                                 name: 1,
-                                attachmentLists: 1
+                                url: 1,
+                                isWebsiteLink: 1,
+                                attachedBy: 1,
+                                card: 1,
+                                createdAt: 1,
+                                updatedAt: 1
                             }
                         }
                     ]
@@ -207,7 +203,8 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
                                             content: 1,
                                             complete: 1,
                                             pos: 1,
-                                            createdBy: 1
+                                            createdBy: 1,
+                                            assignedTo: 1
                                         }
                                     }
                                 ]
@@ -238,7 +235,9 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
                                 _id: 1,
                                 name: 1,
                                 createdBy: 1,
-                                todos: 1
+                                todos: 1,
+                                createdAt: 1,
+                                updatedAt: 1
                             }
                         }
                     ]
@@ -348,7 +347,9 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
                     checklists: 1,
                     createdBy: 1,
                     comments: 1,
-                    list: 1
+                    list: 1,
+                    createdAt: 1,
+                    updatedAt: 1
                 }
             }
         ])

@@ -8,7 +8,7 @@ import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
 
-export async function GET(req: Request, {params}: {params: {cardId: string, id: string}}) {
+export async function GET(req: Request, { params }: { params: { cardId: string, id: string } }) {
     await dbConnect()
     const session = await getServerSession(authOptions);
     const user: User = session?.user as User
@@ -33,7 +33,7 @@ export async function GET(req: Request, {params}: {params: {cardId: string, id: 
     try {
         const validUsers = await CardModel.aggregate([
             {
-                $match: { $or: [{_id: new mongoose.Types.ObjectId(cardId)}, {slug: cardId}] }
+                $match: { $or: [{ _id: new mongoose.Types.ObjectId(cardId) }, { slug: cardId }] }
             },
             {
                 $lookup: {
@@ -68,7 +68,7 @@ export async function GET(req: Request, {params}: {params: {cardId: string, id: 
                 status: errResponse.statusCode,
                 headers: { "Content-Type": "application/json" },
             });
-        }        
+        }
 
         const authorisedUsers = validUsers[0]?.listInfo[0]?.board[0]?.members || []
         if (!authorisedUsers.some((memberId: mongoose.Types.ObjectId) => memberId.equals(user._id))) {
@@ -79,8 +79,106 @@ export async function GET(req: Request, {params}: {params: {cardId: string, id: 
             });
         }
 
-        const checklist = await ChecklistModel.findById(id)
-        if (!checklist) {
+        const checklist = await ChecklistModel.aggregate([
+            {
+                $match: { _id: new mongoose.Types.ObjectId(id) }
+            },
+            {
+                $lookup: {
+                    from: "todos",
+                    localField: "todos",
+                    foreignField: "_id",
+                    as: "todos",
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: "users",
+                                localField: "createdBy",
+                                foreignField: "_id",
+                                as: "createdBy",
+                                pipeline: [
+                                    {
+                                        $project: {
+                                            _id: 1,
+                                            username: 1,
+                                            fullName: 1,
+                                            email: 1,
+                                            avatar: 1,
+                                            initials: 1,
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            $lookup: {
+                                from: "users",
+                                localField: "assignedTo",
+                                foreignField: "_id",
+                                as: "assignedTo",
+                                pipeline: [
+                                    {
+                                        $project: {
+                                            _id: 1,
+                                            username: 1,
+                                            fullName: 1,
+                                            email: 1,
+                                            avatar: 1,
+                                            initials: 1,
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                content: 1,
+                                complete: 1,
+                                pos: 1,
+                                createdBy: 1,
+                                assignedTo: 1,
+                                createdAt: 1,
+                                updatedAt: 1
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "createdBy",
+                    foreignField: "_id",
+                    as: "createdBy",
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                username: 1,
+                                fullName: 1,
+                                email: 1,
+                                avatar: 1,
+                                initials: 1,
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    todos: 1,
+                    createdBy: 1,
+                    card: 1,
+                    name: 1,
+                    createdAt: 1,
+                    updatedAt: 1
+                }
+            }
+        ])
+
+        if (!checklist || checklist.length === 0) {
             const errResponse = new ApiResponse(404, null, "Checklist not found");
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,

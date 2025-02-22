@@ -69,24 +69,48 @@ export async function GET(req: Request, { params }: { params: { cardId: string }
             });
         }
 
-        const memberInfo = await UserModel.find(authorisedUsers).select({
-            _id: 1,
-            username: 1,
-            fullName: 1,
-            email: 1,
-            avatar: 1,
-            initials: 1,
-        })
+        const members = await CardModel.aggregate([
+            {
+                $match: { _id: new mongoose.Types.ObjectId(cardId) }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "members",
+                    foreignField: "_id",
+                    as: "members",
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                username: 1,
+                                fullName: 1,
+                                email: 1,
+                                avatar: 1,
+                                initials: 1,
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $project: {
+                    members: 1
+                }
+            }
+        ])
 
-        if(!memberInfo) {
-            const errResponse = new ApiResponse(400, null, "You are not authorised to view this card");
+        
+
+        if (!members || members.length === 0) {
+            const errResponse = new ApiResponse(200, null, "No members assigned to card");
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,
                 headers: { "Content-Type": "application/json" },
             });
         }
 
-        const successResponse = new ApiResponse(200, memberInfo, "Card members fetched successfully");
+        const successResponse = new ApiResponse(200, members, "Card members fetched successfully");
         return new Response(JSON.stringify(successResponse), {
             status: successResponse.statusCode,
             headers: { "Content-Type": "application/json" },

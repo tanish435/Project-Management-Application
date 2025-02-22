@@ -37,6 +37,14 @@ export async function PATCH(req: Request, { params }: { params: { boardId: strin
             })
         }
 
+        if(!board.admin.equals(user._id)) {
+            const errResponse = new ApiResponse(403, null, "You are not authorised to add members")
+            return new Response(JSON.stringify(errResponse), {
+                status: errResponse.statusCode,
+                headers: { 'Content-Type': 'application/json' }
+            })
+        }
+
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!email || !emailRegex.test(email)) {
             const errResponse = new ApiResponse(400, null, "Invalid email format");
@@ -58,7 +66,7 @@ export async function PATCH(req: Request, { params }: { params: { boardId: strin
                 })
             }
 
-            const response = new ApiResponse(200, null, "User not found and invitation email sent to user")
+            const response = new ApiResponse(200, null, "Invitation email sent to user")
             return new Response(JSON.stringify(response), {
                 status: response.statusCode,
                 headers: { 'Content-Type': 'application/json' }
@@ -79,7 +87,7 @@ export async function PATCH(req: Request, { params }: { params: { boardId: strin
         )
 
         if (!addBoardToUser) {
-            const errResponse = new ApiResponse(500, null, "Internal server error")
+            const errResponse = new ApiResponse(400, null, "Failed to add board to user")
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,
                 headers: { 'Content-Type': 'application/json' }
@@ -92,7 +100,7 @@ export async function PATCH(req: Request, { params }: { params: { boardId: strin
         )
 
         if (!addMember) {
-            const errResponse = new ApiResponse(500, null, "Internal server error")
+            const errResponse = new ApiResponse(400, null, "Failed to add board member")
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,
                 headers: { 'Content-Type': 'application/json' }

@@ -269,7 +269,7 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
                     updatedAt: 1,
                 }
             }
-        ]);
+        ]); 
 
         if (!board.length) {
             const errResponse = new ApiResponse(404, null, "Board not found");

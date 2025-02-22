@@ -5,6 +5,8 @@ import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import CardModel from "@/models/Card.model";
 import generateUniqueUrlId from "@/utils/generateUrlId";
+import ListModel from "@/models/List.model";
+import BoardModel from "@/models/Board.model";
 
 export async function POST(req: Request) {
     await dbConnect()
@@ -46,35 +48,89 @@ export async function POST(req: Request) {
             });
         }
 
-        const slug = await generateUniqueUrlId()
+        const session = await mongoose.startSession()
+        session.startTransaction()
 
-        const card = await CardModel.create({
-            name,
-            description: "",
-            position: pos,
-            dueDate: null,
-            slug,
-            list: listId,
-            attachments: [],
-            comments: [],
-            members: [],
-            createdBy: user._id,
-            checklists: [],
-        })
+        try {
+            const list = await ListModel.findById(listId)
+            if (!list) {
+                await session.abortTransaction()
+                await session.endSession()
 
-        if (!card) {
-            const errResponse = new ApiResponse(500, null, "Failed to create card");
+                const errResponse = new ApiResponse(404, null, "List not found");
+                return new Response(JSON.stringify(errResponse), {
+                    status: errResponse.statusCode,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
+
+            const board = await BoardModel.findById(list.board)
+            if (!board || !board.members.includes(new mongoose.Types.ObjectId(user._id))) {
+                await session.abortTransaction()
+                await session.endSession()
+
+                const errResponse = new ApiResponse(404, null, "Board not found or you are not authorised to create card");
+                return new Response(JSON.stringify(errResponse), {
+                    status: errResponse.statusCode,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
+
+            const lastCard = await CardModel.findOne({ list: listId })
+                .sort({ position: -1 })
+                .session(session)
+
+            const expectedPosition = lastCard ? lastCard.position + 1 : 0;
+
+            if (pos !== expectedPosition) {
+                await session.abortTransaction()
+                await session.endSession()
+
+                const errResponse = new ApiResponse(400, null, `Invalid position. The next position should be ${expectedPosition}`);
+                return new Response(JSON.stringify(errResponse), {
+                    status: errResponse.statusCode,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
+
+            const slug = await generateUniqueUrlId()
+
+            const [card] = await CardModel.create([{
+                name,
+                description: "",
+                position: pos,
+                dueDate: null,
+                slug,
+                list: listId,
+                attachments: [],
+                comments: [],
+                members: [],
+                createdBy: user._id,
+                checklists: [],
+            }], { session })
+
+            list.cards.push(card._id as mongoose.Types.ObjectId)
+            await list.save({ session })
+
+            await session.commitTransaction()
+            await session.endSession()
+
+            const successResponse = new ApiResponse(200, card, "Card created successfully");
+            return new Response(JSON.stringify(successResponse), {
+                status: successResponse.statusCode,
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            await session.abortTransaction();
+            session.endSession()
+
+            console.log("Error in making card:", error);
+            const errResponse = new ApiResponse(500, null, "Error creating card");
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,
                 headers: { "Content-Type": "application/json" },
             });
         }
-
-        const successResponse = new ApiResponse(200, card, "Card created successfully");
-        return new Response(JSON.stringify(successResponse), {
-            status: successResponse.statusCode,
-            headers: { "Content-Type": "application/json" },
-        });
     } catch (error) {
         console.log("Error creating card", error);
         const errResponse = new ApiResponse(500, null, "Internal server error");
