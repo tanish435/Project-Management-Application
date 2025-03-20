@@ -88,7 +88,7 @@ export const authOptions: NextAuthOptions = {
                     const initials = user.name?.split(" ").map(word => word[0]).join("").toUpperCase() || "";
                     existingUser = await UserModel.create({
                         sub: token.sub,
-                        username: uniqueUsername,
+                        username: uniqueUsername.toLowerCase(),
                         fullName: user.name,
                         isVerified: true,
                         avatar: user.image,
@@ -101,6 +101,7 @@ export const authOptions: NextAuthOptions = {
                 token.isVerified = existingUser.isVerified
                 token.username = existingUser.username
                 token.image = existingUser.avatar as string
+                token.initials = existingUser.initials
             }
 
             if (token._id) {
@@ -119,6 +120,7 @@ export const authOptions: NextAuthOptions = {
                 session.user.username = token.username
                 session.user.sub = token.sub as string
                 session.user.image = token.image
+                session.user.initials = token.initials as string
             }
 
             return session
