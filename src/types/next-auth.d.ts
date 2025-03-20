@@ -8,11 +8,13 @@ declare module 'next-auth' {
             isVerified: boolean;
             username: string
             sub: string
+            initials: string
         } & DefaultSession['user']
     }
 
     interface User {
         _id: string;
+        initials: string;
         isVerified: boolean;
         username: string
         sub: string
