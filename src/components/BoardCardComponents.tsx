@@ -18,7 +18,7 @@ const BoardCardComponent = ({ name, url, bgColor, _id, isStarred }: BoardCardPro
                     {`${name}`}
                 </p>
                 {isStarred ?
-                    <Star fill='yellow' strokeWidth={'0.5'} className='mt-1 relative bottom-0 right-0' />
+                    <Star fill='yellow' strokeWidth={'0.5'} className='mt-1 h-4 w-4 relative bottom-0 right-0' />
                     :
                     <Star strokeWidth={'1.6'} color='white' className='mt-1 h-4 w-4 relative bottom-0 right-0' />
                 }

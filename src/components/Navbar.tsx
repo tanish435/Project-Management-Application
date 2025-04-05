@@ -93,7 +93,7 @@ const Navbar = () => {
         const response = await axios.get('/api/boards/getStarredBoards')
         setStarredBoards(response.data.data.boards)
 
-        console.log("Starred response: ", response)
+        // console.log("Starred response: ", response)
       } catch (error) {
         console.log("Error fetching starred boards");
         const axiosError = error as AxiosError<ApiResponse>
@@ -128,13 +128,8 @@ const Navbar = () => {
     }
   }, [starredBoards, boardLoading, starredBoardLoading, boards])
 
-  useEffect(() => {
-    console.log("Updated boards:", boards);
-    console.log("Starred boards:", starredBoards);
-  }, [boards, starredBoards]);
-
   return (
-    <div className='text-white fixed w-full p-3'>
+    <div className='text-white h-16 w-full p-3'>
       <div className='flex items-center justify-between'>
         <div className='flex items-center'>
 

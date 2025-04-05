@@ -1,17 +1,9 @@
 'use client'
-import BoardCardComponent from '@/components/BoardCardComponents'
+import CollectionBoardCardComponent from '@/components/CollectionBoardCardComponent'
 import { ApiResponse } from '@/utils/ApiResponse'
 import axios, { AxiosError } from 'axios'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
-import CreateBoardTemplate from '@/components/CreateBoardTemplate'
-import { Star, User } from 'lucide-react'
-import { Separator } from '@/components/ui/separator'
 
 interface Board {
     name: string
@@ -21,7 +13,13 @@ interface Board {
     isStarred: boolean
 }
 
-const BoardPage = () => {
+interface Collection {
+    _id: string
+    name: string
+    boards: string[]
+}
+
+const page = () => {
     const [boardPage, setBoardPage] = useState(1)
     const [boardLimit, setBoardLimit] = useState(10)
     const [loadMore, setLoadMore] = useState(false)
@@ -29,7 +27,43 @@ const BoardPage = () => {
     const [boardInfo, setBoardInfo] = useState<Board[]>([])
     const [starredBoards, setStarredBoards] = useState<Board[]>([])
     const [starredBoardLoading, setStarredBoardLoading] = useState(false)
+    const [collections, setCollections] = useState<Collection[]>([])
 
+    const handleCollectionCreated = (newCollection: Collection) => {
+        setCollections((prev) => [...prev, newCollection])
+    }
+
+    const handleCollectionUpdated = (updatedCollection: Collection) => {
+        if (!updatedCollection || !updatedCollection._id) return;
+
+        setCollections((prev) =>
+            prev.map((collection) =>
+                collection._id === updatedCollection._id
+                    ? updatedCollection
+                    : collection
+            )
+        );
+    }
+
+    useEffect(() => {
+        const fetchInitialCollections = async() => {
+            try {
+                const response = await axios.get('/api/collections/getUserCollections')
+                if(response?.data?.success) {
+                    setCollections(response.data.data)
+                } 
+            } catch (error) {
+                console.error("Error fetching initial collections:", error);
+            }
+        }
+
+        fetchInitialCollections()
+    }, [])
+
+
+    const handleCollectionDeleted = (deletedCollection: Collection) => {
+        setCollections((prev) => prev.filter((collection) => deletedCollection._id !== collection._id))
+    }
 
     useEffect(() => {
         const fetchStarredBoards = async () => {
@@ -38,7 +72,6 @@ const BoardPage = () => {
                 const response = await axios.get('/api/boards/getStarredBoards')
                 setStarredBoards(response.data.data.boards)
 
-                // console.log("Starred response: ", response)
             } catch (error) {
                 console.log("Error fetching starred boards");
                 const axiosError = error as AxiosError<ApiResponse>
@@ -97,50 +130,47 @@ const BoardPage = () => {
         }
     }, [starredBoards, loading, starredBoardLoading, boardInfo])
 
-    return (
-        <div>
-
-            {starredBoards &&
-                <div>
-                    <div className='flex items-center mb-5 gap-2'>
-                        <Star />
-                        <span className='font-semibold text-lg'>Starred Boards</span>
-                    </div>
-                    {starredBoards?.map((board) =>
-                        <BoardCardComponent key={board._id} name={board.name} _id={board._id} bgColor={board.bgColor} isStarred={true} url={board.url} />
-                    )}
-                </div>
+    useEffect(() => {
+        const fetchCollections = async () => {
+            try {
+                const response = await axios.get('/api/collections/getUserCollections')
+                setCollections(response.data.data)
+            } catch (error) {
+                const axiosError = error as AxiosError<ApiResponse>
+                const errMsg = axiosError.response?.data.message
+                toast('Error fetching user collections', {
+                    description: errMsg,
+                })
             }
+        }
 
-            <Separator className='my-3' />
+        fetchCollections()
+    }, [])
 
-            <div className='flex items-center mb-5 gap-2'>
-                <User />
-                <span className='font-semibold text-lg'>Starred Boards</span>
-            </div>
+    useEffect(() => {
+        console.log("page collections update check: ", collections);
+        console.log("page collections name update check: ", collections);
 
-            <div className='flex flex-wrap'>
+    }, [collections])
 
-                {boardInfo?.map((board) =>
-                    <BoardCardComponent key={board._id} name={board.name} _id={board._id} bgColor={board.bgColor} isStarred={board.isStarred} url={board.url} />
-                )}
-
-
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <div className={`w-48 h-24 px-2 pr-4 py-1 rounded-sm mx-5 mb-6 flex justify-center items-center bg-gray-700 hover:bg-gray-600`}>
-                            <p className='relative text-white text-sm'>
-                                Create new board
-                            </p>
-                        </div>
-                    </PopoverTrigger>
-                    <PopoverContent className="p-0">
-                        <CreateBoardTemplate />
-                    </PopoverContent>
-                </Popover>
-            </div>
+    return (
+        <div className='flex flex-wrap gap-6'>
+            {boardInfo?.map((board) =>
+                <CollectionBoardCardComponent
+                    key={board._id}
+                    name={board.name}
+                    _id={board._id}
+                    bgColor={board.bgColor}
+                    isStarred={board.isStarred}
+                    url={board.url}
+                    collections={collections}
+                    onCollectionCreated={handleCollectionCreated}
+                    onCollectionUpdated={handleCollectionUpdated}
+                    onCollectionDeleted={handleCollectionDeleted}
+                />
+            )}
         </div>
     )
 }
 
-export default BoardPage
+export default page

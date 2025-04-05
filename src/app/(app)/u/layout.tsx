@@ -21,7 +21,7 @@ export default async function RootLayout({
     session ? (
       <div className="bg-slate-900 px-24 flex min-h-screen justify-self-center items-start">
         {/* <SidebarProvider> */}
-        <div className="flex flex-row w-full mx-auto p-5 items-start mt-10">
+        <div className="flex flex-row w-full mx-auto  items-start mt-5">
           <USidebar />
           <div className="flex-1 bg-gray-900 p-6 rounded-lg">
             {children}
@@ -32,22 +32,3 @@ export default async function RootLayout({
     ) : null
   )
 }
-
-
-// <div className="bg-slate-900 flex min-h-screen "
-//     >
-//         <div className="flex justify-stretch items-start p-5">
-//       <SidebarProvider>
-
-//           {/* <div> */}
-//             <USidebar />
-//           {/* </div> */}
-
-//           <div>
-//             {/* <SidebarTrigger /> */}
-//             {children}
-//           </div>
-//       </SidebarProvider>
-//         </div>
-
-//     </div>

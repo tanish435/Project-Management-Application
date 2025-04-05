@@ -20,25 +20,12 @@ export async function POST(req: Request) {
         })
     }
 
-    // Check if the user exists
-    // Collection name should be present 
-    // At least one board must be present
-
     try {
         const { name, boardIds } = await req.json()
         console.log(boardIds);
 
-        if (!name || !boardIds || !Array.isArray(boardIds) || boardIds.length === 0) {
+        if (!name) {
             throw new ApiError(400, 'Collection name and a valid board ID must be present')
-        }
-
-        const invalidBoardIds = boardIds.filter((id: string) => !isValidObjectId(id))
-        if (invalidBoardIds.length > 0) {
-            const errResponse = new ApiResponse(401, null, `Invalid board id: ${invalidBoardIds.join(", ")}`)
-            return new Response(JSON.stringify(errResponse), {
-                status: errResponse.statusCode,
-                headers: { 'Content-Type': 'application/json' }
-            })
         }
 
         if (!user) {
