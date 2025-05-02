@@ -12,8 +12,8 @@ interface BoardCardProps {
 
 const BoardCardComponent = ({ name, url, bgColor, _id, isStarred }: BoardCardProps) => {
     return (
-        <div className={`w-48 h-24 px-2 pr-4 py-1 rounded-sm mx-5 mb-6 flex justify-between items-start ${bgColor}`}>
-            <Link href={`/b/${url}/${name.trim().toLowerCase().replace(/\s+/g, '-')}`}>
+        <Link href={`/b/${url}/${name.trim().toLowerCase().replace(/\s+/g, '-')}`}>
+            <div className={`w-48 h-24 px-2 pr-4 py-1 rounded-sm mx-5 mb-6 flex justify-between items-start ${bgColor}`}>
                 <p className='relative top-0 left-0 text-white text-md font-bold'>
                     {`${name}`}
                 </p>
@@ -22,8 +22,8 @@ const BoardCardComponent = ({ name, url, bgColor, _id, isStarred }: BoardCardPro
                     :
                     <Star strokeWidth={'1.6'} color='white' className='mt-1 h-4 w-4 relative bottom-0 right-0' />
                 }
-            </Link> 
-        </div>
+            </div>
+        </Link>
     )
 }
 

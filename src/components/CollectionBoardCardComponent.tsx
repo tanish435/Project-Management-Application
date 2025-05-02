@@ -135,22 +135,22 @@
                         ))}
                     </div>
                     <div className='flex-shrink-0'>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button className='bg-gray-800 hover:bg-gray-700 text-xs text-white p-0 h-6 w-6' variant="outline"><Plus /></Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="p-0">
-                                <CreateCollectionTemplate
-                                    board={_id}
-                                    boardCollections={boardCollections}
-                                    collections={collections}
-                                    onCollectionCreated={onCollectionCreated}
-                                    onCollectionUpdated={onCollectionUpdated}
-                                    onCollectionDeleted={onCollectionDeleted}
-                                    onChangeCollection={handleToggleCollection}
-                                />
-                            </PopoverContent>
-                        </Popover>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button className='bg-gray-800 hover:bg-gray-700 text-xs text-white p-0 h-6 w-6' variant="outline"><Plus /></Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="p-0">
+                                    <CreateCollectionTemplate
+                                        board={_id}
+                                        boardCollections={boardCollections}
+                                        collections={collections}
+                                        onCollectionCreated={onCollectionCreated}
+                                        onCollectionUpdated={onCollectionUpdated}
+                                        onCollectionDeleted={onCollectionDeleted}
+                                        onChangeCollection={handleToggleCollection}
+                                    />
+                                </PopoverContent>
+                            </Popover>
 
                     </div>
                 </div>                

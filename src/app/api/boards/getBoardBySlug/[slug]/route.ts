@@ -231,6 +231,7 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
                                             description: 1,
                                             name: 1,
                                             position: 1,
+                                            slug: 1,
                                             dueDate: 1,
                                             comments: { $cond: { if: { $isArray: "$comments" }, then: { $size: "$comments" }, else: 0 } },
                                             checklists: { $cond: { if: { $isArray: "$checklists" }, then: { $size: "$checklists" }, else: 0 } },
