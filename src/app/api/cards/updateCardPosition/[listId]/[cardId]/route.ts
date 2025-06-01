@@ -1,6 +1,7 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
 import CardModel from "@/models/Card.model";
+import ListModel from "@/models/List.model";
 import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
@@ -93,22 +94,6 @@ export async function PATCH(req: Request, { params }: { params: { cardId: string
             });
         }
 
-        const cards = await CardModel.find({ list: listId })
-        if (!cards) {
-            const errResponse = new ApiResponse(404, null, "No cards found");
-            return new Response(JSON.stringify(errResponse), {
-                status: errResponse.statusCode,
-                headers: { "Content-Type": "application/json" },
-            });
-        }
-        if (pos >= cards.length) {
-            const errResponse = new ApiResponse(400, null, `Position should be less than ${cards.length}`);
-            return new Response(JSON.stringify(errResponse), {
-                status: errResponse.statusCode,
-                headers: { "Content-Type": "application/json" },
-            });
-        }
-
         const session = await mongoose.startSession()
         session.startTransaction()
 
@@ -125,23 +110,87 @@ export async function PATCH(req: Request, { params }: { params: { cardId: string
                 });
             }
 
-            const oldCardPos = await CardModel.findOne({ list: listId, position: pos }).session(session)
-            if (!oldCardPos) {
-                await session.abortTransaction()
-                await session.endSession()
+            const isSameList = card.list.toString() === listId
 
-                const errResponse = new ApiResponse(404, null, "Card not found");
-                return new Response(JSON.stringify(errResponse), {
-                    status: errResponse.statusCode,
-                    headers: { "Content-Type": "application/json" },
-                });
+            if (isSameList) {
+                const sameListCards = await CardModel.find({ list: card.list }).sort("position").session(session) as any
+
+                if (pos >= sameListCards.length) {
+                    await session.abortTransaction()
+                    await session.endSession()
+
+                    const errResponse = new ApiResponse(400, null, `Position should be less than ${sameListCards.length}`);
+                    return new Response(JSON.stringify(errResponse), {
+                        status: errResponse.statusCode,
+                        headers: { "Content-Type": "application/json" },
+                    });
+                }
+
+                const fromIndex = card.position
+                const toIndex = pos
+
+                sameListCards.splice(fromIndex, 1)
+                sameListCards.splice(toIndex, 0, card)
+
+                for (let i = 0; i < sameListCards.length; i++) {
+                    sameListCards[i].position = i
+                    await sameListCards[i].save({ session })
+                }
+            } else {
+                const oldListCards = await CardModel.find({ list: card.list }).sort("position").session(session) as any
+                for (let i = 0; i < oldListCards.length; i++) {
+                    if (oldListCards[i]._id.equals(card._id)) {
+                        oldListCards.splice(i, 1);
+                        break;
+                    }
+                }
+
+                for (let i = 0; i < oldListCards.length; i++) {
+                    oldListCards[i].position = i;
+                    await oldListCards[i].save({ session })
+                }
+
+                // Insert into new list (Reorder and insert)
+                const newListCards = await CardModel.find({ list: listId }).sort("position").session(session) as any
+                if (pos > newListCards.length) {
+                    await session.abortTransaction()
+                    await session.endSession()
+
+                    const errResponse = new ApiResponse(400, null, `Position should be less than or equal to ${newListCards.length}`);
+                    return new Response(JSON.stringify(errResponse), {
+                        status: errResponse.statusCode,
+                        headers: { "Content-Type": "application/json" },
+                    });
+                }
+
+                await ListModel.findByIdAndUpdate(
+                    listId,
+                    {
+                        $addToSet: {cards: cardId}
+                    },
+                    {new: true, session}
+                )
+
+                await ListModel.findByIdAndUpdate(
+                    card.list,
+                    {
+                        $pull: {cards: cardId}
+                    },
+                    {new: true, session}
+                )
+
+                newListCards.splice(pos, 0, card)
+                for (let i = 0; i < newListCards.length; i++) {
+                    newListCards[i].position = i
+                    if (newListCards[i]._id.equals(card._id)) {
+                        newListCards[i].list = new mongoose.Types.ObjectId(listId)
+
+                    }
+
+                    await newListCards[i].save({ session })
+                }
             }
 
-            oldCardPos.position = card.position
-            await oldCardPos.save({ session })
-
-            card.position = pos
-            await card.save({ session })
 
             await session.commitTransaction()
             await session.endSession()

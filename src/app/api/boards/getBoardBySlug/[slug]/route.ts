@@ -144,6 +144,9 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
                                 as: "cards",
                                 pipeline: [
                                     {
+                                        $sort: {position: 1}
+                                    },
+                                    {
                                         $lookup: {
                                             from: "comments",
                                             localField: "comments",
@@ -231,6 +234,7 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
                                             description: 1,
                                             name: 1,
                                             position: 1,
+                                            list: 1,
                                             slug: 1,
                                             dueDate: 1,
                                             comments: { $cond: { if: { $isArray: "$comments" }, then: { $size: "$comments" }, else: 0 } },

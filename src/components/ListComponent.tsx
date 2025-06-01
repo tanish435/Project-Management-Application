@@ -3,14 +3,14 @@ import React, { useEffect, useRef, useState } from 'react'
 import {
     Card,
     CardContent,
-    CardDescription,
     CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
 import { Button } from './ui/button';
-import { GripHorizontal, GripVertical, Minus, Pencil, Plus, X } from 'lucide-react';
+import {Minus, Plus, X } from 'lucide-react';
 import { Input } from './ui/input';
+import { Draggable, Droppable } from '@hello-pangea/dnd';
 import { ApiResponse } from '@/utils/ApiResponse';
 import axios, { AxiosError } from 'axios';
 import { toast } from 'sonner';
@@ -34,6 +34,7 @@ interface Card {
     dueDate: string;
     comments: number;
     checklists: number;
+    list: string;
     attachments: number;
 }
 
@@ -51,10 +52,9 @@ interface List {
 interface props {
     listInfo: List
     boardMembers: User[]
-    listeners?: React.HTMLAttributes<any>
 }
 
-const ListComponent = ({ listInfo, boardMembers, listeners }: props) => {
+const ListComponent = ({ listInfo, boardMembers }: props) => {
     const [cards, setCards] = useState<Card[]>(listInfo.cards)
     const [name, setName] = useState(listInfo.name)
     const [board, setBoard] = useState(listInfo.board)
@@ -105,8 +105,6 @@ const ListComponent = ({ listInfo, boardMembers, listeners }: props) => {
             return;
         }
 
-        // convert
-
         try {
             const response = await axios.post(`/api/cards/createCard`, {
                 name: cardName,
@@ -151,104 +149,123 @@ const ListComponent = ({ listInfo, boardMembers, listeners }: props) => {
     }, [isEditActive, name, isAddCardActive, cardName])
 
     return (
-        <div className='w-max'>
-            <Card className='w-[272px]'>
-                <CardHeader className='pt-0 px-4'>
-                    <div {...listeners} className="flex items-center justify-center cursor-grab pt-2">
-                        <Minus className="text-gray-400 w-4 h-4" />
-                    </div>
-                    <CardTitle
-                        ref={wrapperRef}
-                        className='text-sm text-gray-300 flex items-center justify-between w-full rounded'
-                    >
-                        {!isEditActive ? (
-                            <span
-                                // {...listeners}
-                                onClick={() => setIsEditActive(true)}
-                                className='text-gray-300 w-full ml-2 cursor-pointer'>
-                                {name}
-                            </span>)
-                            :
-                            <Input
-                                ref={inputRef}
-                                autoFocus
-                                onChange={(e) => setName(e.target.value)}
-                                value={name}
-                                onBlur={saveName}
-                                onKeyDown={(e) => {
-                                    if (e.key == 'Enter') {
-                                        saveName()
-                                        setIsEditActive(false)
-                                    }
-                                }}
-                                className='w-full py-0 px-1 text-gray-300 h-6'
-                            />
-                        }
-                        {/* <Button
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                onEditClick()
-                            }}
-                            className='p-1 h-full bg-transparent shadow-none hover:bg-slate-500 rounded-sm'>
-                            <Pencil className='h-4 w-4 text-gray-400' />
-                        </Button> */}
-                    </CardTitle>
-                    <CardDescription>Card Description</CardDescription>
-                </CardHeader>
-                <CardContent className='px-3'>
-                    <div className='flex flex-col gap-2'>
-                        {cards && cards.map((card) => (
-                            <ListCard
-                                cardInfo={card}
-                                key={card._id}
-                                boardMembers={boardMembers}
-                            />
-                        ))}
-                    </div>
-                </CardContent>
-                <CardFooter
-                    className='px-3'
-                    ref={wrapperRef}
+        <Draggable draggableId={listInfo._id} index={listInfo.position}>
+            {(provided) => (
+                <div 
+                    {...provided.draggableProps}
+                    ref={provided.innerRef}
+                    className='w-max'
                 >
-                    <div className='w-full flex items-center gap-1.5 text-gray-400'>
-                        {!isAddCardActive ?
-                            (
-                                <div
-                                    className='w-full flex items-center gap-1.5 text-gray-400'
-                                    onClick={() => setIsAddCardActive(true)}>
-                                    <Plus className='h-4 w-4' />
-                                    <span className='text-sm'>Add a card</span>
-                                </div>
-                            )
-                            :
-                            (
-                                <div className="flex flex-col w-full max-w-sm items-start gap-1 space-x-2">
+                    <Card className='w-[272px]'>
+                        <CardHeader className='pt-0 pb-2 px-4'>
+                            <div
+                                {...provided.dragHandleProps}
+                                className="flex items-center justify-center cursor-grab pt-2"
+                            >
+                                <Minus className="text-gray-400 w-4 h-4" />
+                            </div>
+                            <CardTitle
+                                ref={wrapperRef}
+                                className='text-sm text-gray-300 flex items-center justify-between w-full rounded'
+                            >
+                                {!isEditActive ? (
+                                    <span
+                                        onClick={() => setIsEditActive(true)}
+                                        className='text-gray-300 w-full ml-2 cursor-pointer'>
+                                        {name}
+                                    </span>)
+                                    :
                                     <Input
-                                        className='w-full'
-                                        placeholder='Enter card name'
-                                        onChange={(e) => setCardName(e.target.value)}
+                                        ref={inputRef}
+                                        autoFocus
+                                        onChange={(e) => setName(e.target.value)}
+                                        value={name}
+                                        onBlur={saveName}
+                                        onKeyDown={(e) => {
+                                            if (e.key == 'Enter') {
+                                                saveName()
+                                                setIsEditActive(false)
+                                            }
+                                        }}
+                                        className='w-full py-0 px-1 text-gray-300 h-6'
                                     />
-                                    <span className='flex items-start gap-1 !ml-0'>
-                                        <Button
-                                            onClick={() => createCard()}
-                                            type="submit"
-                                            className='!ml-0'
-                                        >
-                                            Create
-                                        </Button>
-                                        <Button 
-                                        className='p-2 text-sm'
-                                        onClick={() => setIsAddCardActive(false)}>
-                                            <X />
-                                        </Button>
-                                    </span>
-                                </div>
-                            )
-                        }
-                    </div>
-                </CardFooter>
-            </Card>
-        </div>
+                                }
+                                {/* <Button
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        onEditClick()
+                                    }}
+                                    className='p-1 h-full bg-transparent shadow-none hover:bg-slate-500 rounded-sm'>
+                                    <Pencil className='h-4 w-4 text-gray-400' />
+                                </Button> */}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className='px-3'>
+                            <Droppable droppableId={listInfo._id} type='card' direction='vertical'>
+                                {(provided) => (
+                                    <div 
+                                    {...provided.droppableProps}
+                                    ref={provided.innerRef}
+                                    className='flex flex-col gap-2'
+                                    >
+                                        <span className='h-0.5'></span>
+                                        {listInfo.cards.length > 0 && listInfo.cards.map((card) => (
+                                            <ListCard
+                                            cardInfo={card}
+                                            boardMembers={boardMembers}
+                                            key={card._id}
+                                            />
+                                        ))}
+                                        {provided.placeholder}
+                                    </div>
+                                )}
+                            </Droppable>
+                        </CardContent>
+                        <CardFooter
+                            className='px-3'
+                            ref={wrapperRef}
+                        >
+                            <div className='w-full flex items-center gap-1.5 text-gray-400'>
+                                {!isAddCardActive ?
+                                    (
+                                        <div
+                                            className='w-full flex items-center gap-1.5 text-gray-400'
+                                            onClick={() => setIsAddCardActive(true)}>
+                                            <Plus className='h-4 w-4' />
+                                            <span className='text-sm'>Add a card</span>
+                                        </div>
+                                    )
+                                    :
+                                    (
+                                        <div className="flex flex-col w-full max-w-sm items-start gap-1 space-x-2">
+                                            <Input
+                                                className='w-full'
+                                                placeholder='Enter card name'
+                                                onChange={(e) => setCardName(e.target.value)}
+                                            />
+                                            <span className='flex items-start gap-1 !ml-0'>
+                                                <Button
+                                                    onClick={() => createCard()}
+                                                    type="submit"
+                                                    className='!ml-0'
+                                                >
+                                                    Create
+                                                </Button>
+                                                <Button
+                                                    className='p-2 text-sm'
+                                                    onClick={() => setIsAddCardActive(false)}>
+                                                    <X />
+                                                </Button>
+                                            </span>
+                                        </div>
+                                    )
+                                }
+                            </div>
+                        </CardFooter>
+                    </Card>
+                </div>
+            )}
+        </Draggable>
     )
 }
 
