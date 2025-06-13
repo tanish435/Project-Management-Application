@@ -29,7 +29,7 @@ export async function PATCH(req: Request, {params}: {params: {cardId: string}}) 
 
     try {
         const {description} = await req.json()
-        if (!description || typeof (description) !== "string") {
+        if (typeof (description) !== "string") {
             const errResponse = new ApiResponse(400, null, "Description is required")
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,

@@ -34,6 +34,7 @@ interface Card {
     dueDate: string;
     comments: number;
     checklists: number;
+    members: User[]
     list: string;
     attachments: number;
 }

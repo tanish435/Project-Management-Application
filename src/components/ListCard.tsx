@@ -19,6 +19,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { DropdownMenuSubTrigger } from '@radix-ui/react-dropdown-menu';
+import { Dialog, DialogTrigger } from './ui/dialog';
+import CardComp from './Card';
+import ChangeCardMembers from './ChangeCardMembers';
 
 interface User {
     _id: string,
@@ -40,6 +43,7 @@ interface Card {
     checklists: number;
     attachments: number;
     slug: string
+    members: User[]
 }
 
 interface props {
@@ -48,13 +52,15 @@ interface props {
     isDragging?: boolean;
 }
 
-const ListCard = ({ cardInfo, boardMembers, isDragging = false  }: props) => {
+const ListCard = ({ cardInfo, boardMembers, isDragging = false }: props) => {
     const [dueDate, setDueDate] = useState(cardInfo.dueDate)
     const [cardMembers, setCardMembers] = useState<User[]>([])
+    const [isCardActive, setIsCardActive] = useState(false)
+    const [description, setDescription] = useState(cardInfo.description)
 
-    const filteredBoardMembers = boardMembers.filter(
-        (boardMember) => !cardMembers.some((cardMember) => cardMember._id === boardMember._id)
-    );
+    // const filteredBoardMembers = boardMembers.filter(
+    //     (boardMember) => !cardMembers.some((cardMember) => cardMember._id === boardMember._id)
+    // );
 
     const date = new Date(dueDate)
     const formattedDate = new Intl.DateTimeFormat('en-GB', {
@@ -62,46 +68,6 @@ const ListCard = ({ cardInfo, boardMembers, isDragging = false  }: props) => {
         month: 'short',
         year: 'numeric'
     }).format(date)
-
-    const addMembersToCard = async (member: User) => {
-        try {
-            const response = await axios.patch(`/api/cards/addMembersToCard/${cardInfo._id}`, {
-                memberId: member._id
-            })
-
-            if (response?.data?.success) {
-                setCardMembers((prevMembers) => [...prevMembers, member])
-                toast.success('Member added to card successfully')
-            }
-        } catch (error) {
-            const axiosError = error as AxiosError<ApiResponse>
-            const errMsg = axiosError.response?.data.message
-
-            toast.error('Failed to add members to card', {
-                description: errMsg
-            })
-        }
-    }
-
-    const removeMembersFromCard = async (memberId: string) => {
-        try {
-            const response = await axios.patch(`/api/cards/removeCardMembers/${cardInfo._id}`, {
-                memberId: memberId
-            })
-
-            if (response?.data?.success) {
-                setCardMembers((prevMembers) => prevMembers.filter(member => member._id !== memberId))
-                toast.success('Member removed from card successfully')
-            }
-        } catch (error) {
-            const axiosError = error as AxiosError<ApiResponse>
-            const errMsg = axiosError.response?.data.message
-
-            toast.error('Failed to remove members from card', {
-                description: errMsg
-            })
-        }
-    }
 
     useEffect(() => {
         const getCardMembers = async () => {
@@ -123,131 +89,111 @@ const ListCard = ({ cardInfo, boardMembers, isDragging = false  }: props) => {
         getCardMembers()
     }, [])
 
-    useEffect(() => {
-        console.log("boardMembers", boardMembers);
-    }, [boardMembers]);
+    // useEffect(() => {
+    //     console.log("boardMembers", boardMembers);
+    // }, [boardMembers]);
 
 
     return (
-        <Draggable draggableId={cardInfo._id} index={cardInfo.position}>
-            {(provided) => (
-                <div 
-                    {...provided.draggableProps}
-                    ref={provided.innerRef}
-                    className='w-full bg-gray-800 p-2 pt-1 rounded-md'
-                >
-                <div className='flex justify-between w-full'>
-                    <div 
-                        {...provided.dragHandleProps}
-                        className="w-full flex items-center justify-center cursor-grab"
-                    >
-                        <Minus className="text-gray-400 w-4 h-4" />
-                    </div>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger className='bg-gray-800 hover:bg-gray-700 text-xs rounded flex justify-center items-center text-white p-0 h-6 w-6'><Ellipsis className='h-4 w-4' /></DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-44">
-                            <DropdownMenuGroup>
-                                <DropdownMenuSub>
-                                    <DropdownMenuSubTrigger className='text-sm px-2 py-1.5'>Change members</DropdownMenuSubTrigger>
-                                    <DropdownMenuPortal>
-                                        <DropdownMenuSubContent className='w-64'>
-                                            {cardMembers.length > 0 &&
-                                                <>
-                                                    <DropdownMenuLabel className='text-gray-400 text-xs'>Card members</DropdownMenuLabel>
-                                                    {cardMembers.map((member) => (
-                                                        <div
-                                                            onClick={() => removeMembersFromCard(member._id)}
-                                                            key={member._id}
-                                                        >
-                                                            <DropdownMenuItem className='bg-slate-60 mb-1 flex justify-between'>
-                                                                <div className='flex gap-1 items-center'>
-                                                                    <Avatar className='h-7 w-7'>
-                                                                        <AvatarImage src={member.avatar} alt={member.username} />
-                                                                        <AvatarFallback className='text-xs'>{member.initials}</AvatarFallback>
-                                                                    </Avatar>
-                                                                    <span>{member.username}</span>
-                                                                </div>
-                                                                <X className='w-3 h-3' />
-                                                            </DropdownMenuItem>
-                                                        </div>
-                                                    ))}
-                                                </>
-                                            }
-                                            {filteredBoardMembers.length > 0 &&
-                                                <>
-                                                    <DropdownMenuLabel className='text-gray-400 text-xs'>Board members</DropdownMenuLabel>
+        <>
+            <Dialog open={isCardActive} onOpenChange={setIsCardActive}>
+                <Draggable draggableId={cardInfo._id} index={cardInfo.position}>
+                    {(provided) => (
+                        // <DialogTrigger asChild>
+                        <div
+                            {...provided.draggableProps}
+                            ref={provided.innerRef}
+                            className='w-full bg-gray-800 p-2 pt-1 rounded-md'
+                            onClick={(e) => {
+                                if (
+                                    (e.target as HTMLElement).closest('[data-stop-dialog-open]') === null
+                                ) {
+                                    setIsCardActive(true)
+                                }
+                            }}
+                        >
+                            <div className='flex justify-between w-full'>
+                                <div
+                                    {...provided.dragHandleProps}
+                                    className="w-full flex items-center justify-center cursor-grab"
+                                >
+                                    <Minus className="text-gray-400 w-4 h-4" />
+                                </div>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger data-stop-dialog-open className='bg-gray-800 hover:bg-gray-700 text-xs rounded flex justify-center items-center text-white p-0 h-6 w-6'><Ellipsis className='h-4 w-4' /></DropdownMenuTrigger>
 
-                                                    {filteredBoardMembers.map((member) => (
-                                                        <div
-                                                            onClick={() => addMembersToCard(member)}
-                                                            key={member._id}
-                                                        >
-                                                            <DropdownMenuItem className='bg-slate-60 mb-1'>
-                                                                <Avatar className='h-7 w-7'>
-                                                                    <AvatarImage src={member.avatar} alt={member.username} />
-                                                                    <AvatarFallback className='text-xs'>{member.initials}</AvatarFallback>
-                                                                </Avatar>
-                                                                <span>{member.username}</span>
-                                                            </DropdownMenuItem>
-                                                        </div>
-                                                    ))}
-                                                </>
-                                            }
-                                            <DropdownMenuSeparator />
-                                            <DropdownMenuItem>More...</DropdownMenuItem>
-                                        </DropdownMenuSubContent>
-                                    </DropdownMenuPortal>
-                                </DropdownMenuSub>
-                            </DropdownMenuGroup>
-                            <DropdownMenuItem>
-                                Delete card
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-                <div className='flex justify-between items-center'>
-                    <span className='text-sm ml-[1px]'>{cardInfo.name}</span>
-                </div>
-                <div className='flex flex-wrap gap-2 mt-1'>
-                    {dueDate !== null && (
-                        <Badge className='text-gray-400 '>{formattedDate}</Badge>
-                    )}
-                    {cardInfo.description.trim() !== '' && (
-                        <span className='flex items-center'>
-                            <Text className='h-3 w-3' />
-                        </span>
-                    )}
-                    {cardInfo.attachments > 0 && (
-                        <span className='flex items-center justify-center gap-1 text-xs'>
-                            <Paperclip className='h-3 w-3' />
-                            {cardInfo.attachments}
-                        </span>
-                    )}
-                    {cardInfo.comments > 0 && (
-                        <span className='flex items-center justify-center gap-1 text-xs'>
-                            <MessageSquare className='h-3 w-3' />
-                            {cardInfo.comments}
-                        </span>
-                    )}
-                    {cardInfo.checklists > 0 && (
-                        <span className='flex items-center justify-center gap-1 text-xs'>
-                            <ListChecks className='h-3 w-3' />
-                            {cardInfo.checklists}
-                        </span>
-                    )}
-                </div>
-                <div className='flex items-center justify-end gap-1 mt-3'>
-                    {cardMembers.map((member) => (
-                        <Avatar className='h-7 w-7' key={member._id}>
-                            <AvatarImage src={member.avatar} alt={member.username} />
-                            <AvatarFallback className='text-xs'>{member.initials}</AvatarFallback>
-                        </Avatar>
-                    ))}
-                </div>
-                </div>
-            )}
-        </Draggable>
+                                    <DropdownMenuContent data-stop-dialog-open className="w-44">
+                                        <DropdownMenuSub>
+                                            <ChangeCardMembers
+                                                cardId={cardInfo._id}
+                                                boardMembers={boardMembers}
+                                                cardMembers={cardMembers}
+                                                setCardMembers={setCardMembers}
+                                            />
+                                        </DropdownMenuSub>
+                                        <DropdownMenuItem>
+                                            Delete card
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
 
+
+                            </div>
+                            <div className='flex justify-between items-center'>
+                                <span className='text-sm ml-[1px]'>{cardInfo.name}</span>
+                            </div>
+                            <div className='flex flex-wrap gap-2 mt-1'>
+                                {dueDate !== null && (
+                                    <Badge className='text-gray-400 '>{formattedDate}</Badge>
+                                )}
+                                {description.trim() !== '' && (
+                                    <span className='flex items-center'>
+                                        <Text className='h-3 w-3' />
+                                    </span>
+                                )}
+                                {cardInfo.attachments > 0 && (
+                                    <span className='flex items-center justify-center gap-1 text-xs'>
+                                        <Paperclip className='h-3 w-3' />
+                                        {cardInfo.attachments}
+                                    </span>
+                                )}
+                                {cardInfo.comments > 0 && (
+                                    <span className='flex items-center justify-center gap-1 text-xs'>
+                                        <MessageSquare className='h-3 w-3' />
+                                        {cardInfo.comments}
+                                    </span>
+                                )}
+                                {cardInfo.checklists > 0 && (
+                                    <span className='flex items-center justify-center gap-1 text-xs'>
+                                        <ListChecks className='h-3 w-3' />
+                                        {cardInfo.checklists}
+                                    </span>
+                                )}
+                            </div>
+                            <div className='flex items-center justify-end gap-1 mt-3'>
+                                {cardMembers?.map((member) => (
+                                    <Avatar className='h-7 w-7' key={member._id}>
+                                        <AvatarImage src={member.avatar} alt={member.username} />
+                                        <AvatarFallback className='text-xs'>{member.initials}</AvatarFallback>
+                                    </Avatar>
+                                ))}
+                            </div>
+                        </div>
+                        // </DialogTrigger> 
+                    )}
+                </Draggable>
+
+                {isCardActive &&
+                    <CardComp
+                        cardInfo={cardInfo}
+                        boardMembers={boardMembers}
+                        cardMembers={cardMembers}
+                        setCardMembers={setCardMembers}
+                        description={description}
+                        setDescription={setDescription}
+                    />}
+            </Dialog>
+        </>
     )
 }
 

@@ -11,6 +11,9 @@ import { toast } from 'sonner';
 import { DndContext, DragEndEvent, KeyboardSensor, PointerSensor, TouchSensor, closestCorners, useSensor, useSensors } from '@dnd-kit/core'
 import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import SortableListItem from '@/components/SortableListItem';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface User {
   _id: string,
@@ -29,6 +32,7 @@ interface Card {
   list: string
   position: number;
   dueDate: string;
+  members: User[]
   comments: number;
   checklists: number;
   attachments: number;
@@ -95,7 +99,7 @@ const Board = () => {
   }, [])
 
   useEffect(() => {
-    console.log("geifie", boardData);
+    // console.log("geifie", boardData);
     setAdmin(boardData?.admin as User[])
     setMembers(boardData?.members as User[])
     setLists(boardData?.lists || [])
