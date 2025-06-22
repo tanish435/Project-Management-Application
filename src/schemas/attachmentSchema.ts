@@ -26,7 +26,8 @@ export const fileSchema = z.object({
 })
 
 export const urlSchema = z.object({
-    url: z.string().url()
+    url: z.string().url(),
+    displayName: z.string().max(300)
 })
 
 export const attachmentSchema = z.union([fileSchema, urlSchema])

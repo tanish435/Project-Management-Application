@@ -96,7 +96,7 @@ const ListCard = ({ cardInfo, boardMembers, isDragging = false }: props) => {
 
     return (
         <>
-            <Dialog open={isCardActive} onOpenChange={setIsCardActive}>
+            <Dialog open={isCardActive} onOpenChange={setIsCardActive} modal={false}>
                 <Draggable draggableId={cardInfo._id} index={cardInfo.position}>
                     {(provided) => (
                         // <DialogTrigger asChild>
@@ -183,15 +183,19 @@ const ListCard = ({ cardInfo, boardMembers, isDragging = false }: props) => {
                     )}
                 </Draggable>
 
-                {isCardActive &&
-                    <CardComp
-                        cardInfo={cardInfo}
-                        boardMembers={boardMembers}
-                        cardMembers={cardMembers}
-                        setCardMembers={setCardMembers}
-                        description={description}
-                        setDescription={setDescription}
-                    />}
+                {isCardActive && (
+                    <>
+                        <div className="fixed inset-0 bg-black/70 z-40 pointer-events-none" />
+                        <CardComp
+                            cardInfo={cardInfo}
+                            boardMembers={boardMembers}
+                            cardMembers={cardMembers}
+                            setCardMembers={setCardMembers}
+                            description={description}
+                            setDescription={setDescription}
+                        />
+                    </>
+                )}
             </Dialog>
         </>
     )

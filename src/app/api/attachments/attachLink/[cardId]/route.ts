@@ -32,7 +32,7 @@ export async function POST(req: Request, { params }: { params: { cardId: string 
     const urlSchema = z.string().url({ message: 'Invalid url' })
 
     try {
-        const { url } = await req.json()
+        const { url, displayName } = await req.json()
         if (!url || url.length === 0) {
             const errResponse = new ApiResponse(400, null, "No URL provided");
             return new Response(JSON.stringify(errResponse), {
@@ -100,7 +100,7 @@ export async function POST(req: Request, { params }: { params: { cardId: string 
                 url,
                 attachedBy: user._id,
                 card: cardId,
-                name: url
+                name: displayName ? displayName : url
             }], { session })
 
             const updateCard = await CardModel.findByIdAndUpdate(

@@ -39,7 +39,7 @@ export async function PATCH(req: Request, { params }: { params: { cardId: string
     const urlSchema = z.string().url({ message: 'Invalid url' })
 
     try {
-        const { url } = await req.json()
+        const { url, name } = await req.json()
         const validatedUrl = urlSchema.parse(url)
 
         const validUsers = await CardModel.aggregate([
@@ -91,7 +91,7 @@ export async function PATCH(req: Request, { params }: { params: { cardId: string
         }
 
         const attachment = await AttachmentModel.findById(attachmentId)
-        if(!attachment?.isWebsiteLink) {
+        if (!attachment?.isWebsiteLink) {
             const errResponse = new ApiResponse(404, null, "Cannot update file url");
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,
@@ -101,7 +101,12 @@ export async function PATCH(req: Request, { params }: { params: { cardId: string
 
         const updatedAttachment = await AttachmentModel.findByIdAndUpdate(
             attachmentId,
-            { $set: { url: validatedUrl } },
+            {
+                $set: {
+                    url: validatedUrl,
+                    name: name == '' ? validatedUrl : name
+                }
+            },
             { new: true }
         );
 
