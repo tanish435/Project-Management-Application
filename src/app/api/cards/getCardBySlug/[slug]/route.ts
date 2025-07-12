@@ -158,6 +158,11 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
                                 as: "todos",
                                 pipeline: [
                                     {
+                                        $sort: {
+                                            pos: 1
+                                        }
+                                    },
+                                    {
                                         $lookup: {
                                             from: "users",
                                             localField: "createdBy",
@@ -307,11 +312,16 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
                             }
                         },
                         {
+                            $unwind: "$owner"
+                        },
+                        {
                             $project: {
                                 _id: 1,
                                 content: 1,
                                 owner: 1,
-                                card: 1
+                                card: 1,
+                                createdAt: 1,
+                                updatedAt: 1
                             }
                         }
                     ]

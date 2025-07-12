@@ -37,18 +37,9 @@ export async function POST(req: Request, { params }: { params: { cardId: string,
     }
 
     try {
-        const { content, position } = await req.json()
+        const { content } = await req.json()
         if (!content || typeof content !== "string" || content.trim() === "") {
             const errResponse = new ApiResponse(400, null, "Invalid given content");
-            return new Response(JSON.stringify(errResponse), {
-                status: errResponse.statusCode,
-                headers: { "Content-Type": "application/json" },
-            });
-        }
-
-        const pos = Number(position)
-        if (isNaN(pos) || pos < 0) {
-            const errResponse = new ApiResponse(400, null, "Invalid position index");
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,
                 headers: { "Content-Type": "application/json" },
@@ -108,23 +99,12 @@ export async function POST(req: Request, { params }: { params: { cardId: string,
 
         try {
             const lastTodo = await TodoModel.findOne({ checklist: checklistId }).sort({ pos: -1 }).session(session)
-            const expectedPosition = lastTodo ? lastTodo.pos + 1 : 0
-
-            if (pos !== expectedPosition) {
-                await session.abortTransaction()
-                await session.endSession()
-
-                const errResponse = new ApiResponse(400, null, `Invalid position. The next position should be ${expectedPosition}`);
-                return new Response(JSON.stringify(errResponse), {
-                    status: errResponse.statusCode,
-                    headers: { "Content-Type": "application/json" },
-                });
-            }
+            const newPosition = lastTodo ? lastTodo.pos + 1 : 0
 
             const [todos] = await TodoModel.create([{
                 content,
                 complete: false,
-                pos,
+                pos: newPosition,
                 checklist: checklistId,
                 assignedTo: [],
                 createdBy: user._id
