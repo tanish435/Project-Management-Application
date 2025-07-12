@@ -113,6 +113,8 @@ export async function PATCH(req: Request, {params}: {params: {cardId: string, co
         comment.content = content
         await comment.save()
 
+        await comment.populate('owner', 'username fullName email avatar initials')
+
         const successResponse = new ApiResponse(200, comment, "Comment updated successfully");
         return new Response(JSON.stringify(successResponse), {
             status: successResponse.statusCode,

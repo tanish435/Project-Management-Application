@@ -105,6 +105,8 @@ export async function POST(req: Request, { params }: { params: { cardId: string 
                 owner: user._id,
             })
 
+            await comment.populate('owner', 'username fullName email avatar initials')
+
             const updateCard = await CardModel.findByIdAndUpdate(
                 cardId,
                 {
