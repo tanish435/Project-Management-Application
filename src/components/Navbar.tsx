@@ -175,7 +175,7 @@ const Navbar = () => {
                   </NavigationMenuTrigger>
                   <NavigationMenuContent className="bg-slate-800 text-gray-300 !border-none navigation-menu-content">
                     <ul className="gap-3 p-2 md:w-[300px]">
-                      {starredBoards.map((board) => (
+                      {starredBoards?.map((board) => (
                         <Link key={board._id} href={`/b/${board.url}/${board.name.trim().toLowerCase().replace(/\s+/g, '-')}`}>
                           <li className='my-1 hover:bg-slate-700 rounded p-1'>
                             <div className='flex justify-between items-center'>

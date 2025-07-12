@@ -55,7 +55,7 @@ const BoardNavbar = ({ _id, boardName, members }: NavbarProps) => {
   }, [])
 
   useEffect(() => {
-    starredBoards.map((board) => board._id === _id ? setIsStarred(true) : false)
+    starredBoards?.map((board) => board._id === _id ? setIsStarred(true) : false)
   }, [starredBoards])
 
   return (
