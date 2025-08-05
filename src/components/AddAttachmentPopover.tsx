@@ -37,9 +37,10 @@ interface props {
   cardId: string
   attachments: Attachment[]
   setAttachments: React.Dispatch<React.SetStateAction<Attachment[]>>;
+  trigger?: React.ReactNode; // Optional custom trigger
 }
 
-const AddAttachmentPopover = ({ cardId, attachments, setAttachments }: props) => {
+const AddAttachmentPopover = ({ cardId, attachments, setAttachments, trigger }: props) => {
   const form = useForm<z.infer<typeof urlSchema>>({
     resolver: zodResolver(urlSchema),
     defaultValues: {
@@ -84,12 +85,13 @@ const AddAttachmentPopover = ({ cardId, attachments, setAttachments }: props) =>
 
       if (response.data.success) {
         setAttachments(prev => [...prev, response.data.data])
+        form.reset() // Reset form after successful submission
       }
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>
       const errMsg = axiosError.response?.data.message
 
-      toast.error('Failed to attach file', {
+      toast.error('Failed to attach link', {
         description: errMsg
       })
     }
@@ -98,11 +100,13 @@ const AddAttachmentPopover = ({ cardId, attachments, setAttachments }: props) =>
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button
-          className='bg-gray-600 hover:bg-[#5f6671] py-1.5 font-normal rounded-sm'
-        >
-          Add
-        </Button>
+        {trigger || (
+          <Button
+            className='bg-gray-600 hover:bg-[#5f6671] py-1.5 font-normal rounded-sm'
+          >
+            Add
+          </Button>
+        )}
       </PopoverTrigger>
       <PopoverContent
         className="w-80 bg-gray-800 pointer-events-auto"
@@ -160,14 +164,17 @@ const AddAttachmentPopover = ({ cardId, attachments, setAttachments }: props) =>
               />
               <div className="flex gap-2">
                 <Button type="submit" className='rounded-sm bg-blue-500 hover:bg-[#75b2fb] text-black px-3 py-1.5'>Insert</Button>
-                <Button type="button" variant="ghost" className='hover:bg-[#5f6671] px-3'>
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  className='hover:bg-[#5f6671] px-3'
+                  onClick={() => form.reset()}
+                >
                   Cancel
                 </Button>
               </div>
             </form>
           </Form>
-
-          
         </div>
       </PopoverContent>
     </Popover>
@@ -175,31 +182,3 @@ const AddAttachmentPopover = ({ cardId, attachments, setAttachments }: props) =>
 }
 
 export default AddAttachmentPopover
-
-
-{/* <section className='flex flex-col gap-2'>
-            <div>
-              <Label htmlFor="link">Paste a link</Label>
-              <Input
-                id="link"
-                placeholder="paste a link"
-                className='bg-gray-900'
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="link">Display Text (optional)</Label>
-              <Input id="link" placeholder="Text to display"
-                className='bg-gray-900'
-              />
-            </div>
-          </section>
-
-          <section>
-            <div className="flex gap-2">
-              <Button type="submit" className='rounded-sm bg-blue-500 hover:bg-[#75b2fb] text-black px-3 py-1.5'>Insert</Button>
-              <Button type="button" variant="ghost" className='hover:bg-[#5f6671] px-3'>
-                Cancel
-              </Button>
-            </div>
-          </section> */}
