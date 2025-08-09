@@ -2,11 +2,11 @@ import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/models/User.model";
 import { ApiResponse } from "@/utils/ApiResponse";
 
-export async function PATCH(req: Request) {
+export async function POST(req: Request) {
     await dbConnect()
 
     try {
-        const { username, verifyCode } = await req.json()
+        const { username, code } = await req.json()
         const decodedUsername = decodeURIComponent(username)
 
         const user = await UserModel.findOne({ username: decodedUsername })
@@ -18,7 +18,7 @@ export async function PATCH(req: Request) {
             })
         }
 
-        const isCodeValid = user.verifyCode === verifyCode
+        const isCodeValid = user.verifyCode === code
         const isCodeNotExpired = new Date() < new Date(user.verifyCodeExpiry)
 
         if (isCodeValid && isCodeNotExpired) {
