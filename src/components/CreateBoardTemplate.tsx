@@ -17,7 +17,19 @@ const colors = [
     'bg-green-500', 'bg-teal-400', 'bg-pink-500', 'bg-gray-400'
 ]
 
-const CreateBoardTemplate = () => {
+interface Board {
+    name: string
+    url: string
+    bgColor: string
+    _id: string
+    isStarred: boolean
+}
+
+interface CreateBoardTemplateProps {
+    onBoardCreated?: (board: Board) => void;
+}
+
+const CreateBoardTemplate = ({ onBoardCreated }: CreateBoardTemplateProps) => {
     const [selectedColor, setSelectedColor] = useState('bg-blue-600')
     const [boardNameError, setBoardNameError] = useState('')
 
@@ -39,6 +51,12 @@ const CreateBoardTemplate = () => {
                 bgColor: selectedColor
             })
             console.log(response);
+            const createdBoard: Board = response.data.data
+            if (onBoardCreated) {
+                onBoardCreated(createdBoard)
+            }
+
+            toast.success("Board created successfully")
         } catch (error) {
             const axiosError = error as AxiosError<ApiResponse>
             let errorMsg = axiosError.response?.data.message

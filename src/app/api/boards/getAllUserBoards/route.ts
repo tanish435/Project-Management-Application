@@ -1,6 +1,7 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
 import BoardModel from "@/models/Board.model";
+import UserModel from "@/models/User.model";
 import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
@@ -24,9 +25,26 @@ export async function GET(req: Request) {
         const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
         const limit = Math.max(1, parseInt(url.searchParams.get("limit") || "10", 10));
 
+        // First, get the user's boards from their profile
+        const userProfile = await UserModel.findById(validUserId).select('boards');
+        const userBoardIds = userProfile?.boards || [];
+
+        // Create a comprehensive match condition
+        const matchCondition = {
+            $or: [
+                { admin: validUserId },           // User is admin
+                { members: validUserId },         // User is in members array
+                { _id: { $in: userBoardIds } }    // Board ID is in user's boards array
+            ]
+        };
+
+        console.log("User ID:", validUserId);
+        console.log("User's board IDs:", userBoardIds);
+        console.log("Match condition:", JSON.stringify(matchCondition, null, 2));
+
         const userBoards = await BoardModel.aggregate([
             {
-                $match: {$or: [{admin: validUserId}, {members: validUserId}]}
+                $match: matchCondition
             },
             {
                 $lookup: {
@@ -80,6 +98,8 @@ export async function GET(req: Request) {
             }
         ])
 
+        console.log("Found boards:", userBoards.length);
+
         if(userBoards.length === 0) {
             const response = new ApiResponse(200, {boards: []}, "No boards found")
             return new Response(JSON.stringify(response), {
@@ -96,7 +116,7 @@ export async function GET(req: Request) {
 
     } catch (error) {
         console.log("Error fetching user boards", error)
-        const errResponse = new ApiResponse(500, null, "Error fethcing user boards")
+        const errResponse = new ApiResponse(500, null, "Error fetching user boards")
         return new Response(JSON.stringify(errResponse), {
             status: errResponse.statusCode,
             headers: { 'Content-Type': 'application/json' }
