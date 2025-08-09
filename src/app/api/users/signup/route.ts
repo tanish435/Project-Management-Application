@@ -81,14 +81,17 @@ export async function POST(req: Request) {
         }
 
         // Send verification email
-        const emailRes = await sendVerificationEmail(username, email, verifyCode)
-        if(emailRes.status !== 200 ) {
-            const emailRes = new ApiResponse(400, null, "Failed to send message")
-            return new Response(JSON.stringify(emailRes), {
-                status: emailRes.statusCode,
-                headers: { 'Content-Type': 'application/json' }
-            })
+        const emailResponse = await sendVerificationEmail(email, username, verifyCode);
+        
+        if (!emailResponse.success) {
+            return Response.json(
+                {
+                    success: false,
+                    message: emailResponse.message,
+                }, { status: 500 }
+            );
         }
+
 
         const response = new ApiResponse(200, null, "User resgistered successfully. Verify your email")
         return new Response(JSON.stringify(response), {

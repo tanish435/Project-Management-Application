@@ -65,43 +65,50 @@ export const authOptions: NextAuthOptions = {
         })
     ],
     callbacks: {
-        async jwt({ token, user, profile }) {
+        async jwt({ token, user, profile, account }) {
             if (user) {
-                token.sub = profile?.sub
+                if (account?.provider === "google") {
+                    token.sub = profile?.sub
 
-                await dbConnect()
-                let existingUser = await UserModel.findOne({ sub: token.sub });
-                if (!existingUser) {
-                    // Generate unique username for google users
-                    const baseUsername = user.name?.toLowerCase().replace(/\s+/g, "_") || "user";
-                    let uniqueUsername = baseUsername;
-                    let suffix = 0;
+                    await dbConnect()
+                    let existingUser = await UserModel.findOne({ sub: token.sub })
+                    if (!existingUser) {
+                        const baseUsername = user.name?.toLowerCase().replace(/\s+/g, "_") || "user";
+                        let uniqueUsername = baseUsername;
+                        let suffix = 0;
 
-                    // Ensure username is unique
-                    while (await UserModel.findOne({ username: uniqueUsername })) {
-                        suffix += 1;
-                        
-                        const randomSuffix = Math.floor(Math.random() * 1000); // Random number between 0-999
-                        uniqueUsername = `${baseUsername}_${suffix}_${randomSuffix}`;
+                        // Ensure username is unique
+                        while (await UserModel.findOne({ username: uniqueUsername })) {
+                            suffix += 1;
+
+                            const randomSuffix = Math.floor(Math.random() * 1000); // Random number between 0-999
+                            uniqueUsername = `${baseUsername}_${suffix}_${randomSuffix}`;
+                        }
+
+                        const initials = user.name?.split(" ").map(word => word[0]).join("").toUpperCase() || "";
+                        existingUser = await UserModel.create({
+                            sub: token.sub,
+                            username: uniqueUsername.toLowerCase(),
+                            fullName: user.name,
+                            isVerified: true,
+                            avatar: user.image,
+                            email: user.email,
+                            initials: initials,
+                        });
                     }
 
-                    const initials = user.name?.split(" ").map(word => word[0]).join("").toUpperCase() || "";
-                    existingUser = await UserModel.create({
-                        sub: token.sub,
-                        username: uniqueUsername.toLowerCase(),
-                        fullName: user.name,
-                        isVerified: true,
-                        avatar: user.image,
-                        email: user.email,
-                        initials: initials,
-                    });
+                    token._id = existingUser._id as string
+                    token.isVerified = existingUser.isVerified
+                    token.username = existingUser.username
+                    token.image = existingUser.avatar as string
+                    token.initials = existingUser.initials
+                } else if (account?.provider === "credentials") {
+                    token._id = user._id
+                    token.isVerified = user.isVerified
+                    token.username = user.username
+                    token.image = user.image as string
+                    token.initials = user.initials
                 }
-
-                token._id = existingUser._id as string
-                token.isVerified = existingUser.isVerified
-                token.username = existingUser.username
-                token.image = existingUser.avatar as string
-                token.initials = existingUser.initials
             }
 
             if (token._id) {
