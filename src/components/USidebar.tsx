@@ -1,11 +1,14 @@
 'use client'
 import React, { memo, useEffect, useRef } from 'react'
 import { Button } from './ui/button'
-import { AppWindow, Home, Layers, Star, User } from 'lucide-react'
+import { AppWindow, FileQuestion, Home, Layers, Star, User } from 'lucide-react'
 import Link from 'next/link'
 import { Separator } from './ui/separator'
+import { useSession } from 'next-auth/react'
 
 const USidebar = () => {
+    const {data: session} = useSession()
+    const username = session?.user?.username
     return (
         <div className="w-56 hidden md:block">
             <div className='p-1'>
@@ -17,7 +20,7 @@ const USidebar = () => {
                 </Link>
             </div>
             <div className='p-1'>
-                <Link href={'/'}>
+                <Link href={`/u/${username}/boards`}>
                     <Button className='w-full bg-transparent flex justify-normal hover:bg-slate-700'>
                         <AppWindow className='' />
                         Boards
@@ -25,7 +28,7 @@ const USidebar = () => {
                 </Link>
             </div>
             <div className='p-1'>
-                <Link href={'/'}>
+                <Link href={`/u/${username}/collections`}>
                     <Button className='w-full bg-transparent flex justify-normal hover:bg-slate-700'>
                         <Layers className='' />
                         Collections
@@ -39,7 +42,7 @@ const USidebar = () => {
                 Workspace
             </div>
             <div className='p-1'>
-                <Link href={'/'}>
+                <Link href={`/u/${username}/boards`}>
                     <Button className='w-full bg-transparent flex justify-normal hover:bg-slate-700'>
                         <AppWindow className='' />
                         Boards
@@ -47,15 +50,15 @@ const USidebar = () => {
                 </Link>
             </div>
             <div className='p-1'>
-                <Link href={'/'}>
+                <Link href={`/support`}>
                     <Button className='w-full bg-transparent flex justify-normal hover:bg-slate-700'>
-                        <Star className='' />
-                        Starred Boards
+                        <FileQuestion className='' />
+                        Support
                     </Button>
                 </Link>
             </div>
             <div className='p-1'>
-                <Link href={'/'}>
+                <Link href={'/profile'}>
                     <Button className='w-full bg-transparent flex justify-normal hover:bg-slate-700'>
                         <User className='' />
                         Profile

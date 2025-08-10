@@ -58,14 +58,14 @@ const Navbar = () => {
   const [boardLoading, setBoardLoading] = useState(false)
   const [starredBoards, setStarredBoards] = useState<Board[]>([])
   const [starredBoardLoading, setStarredBoardLoading] = useState(false)
-  
+
   const [boardsPagination, setBoardsPagination] = useState<PaginationState>({
     page: 1,
     limit: 5,
     hasMore: true,
     total: 0
   })
-  
+
   const [starredPagination, setStarredPagination] = useState<PaginationState>({
     page: 1,
     limit: 5,
@@ -219,17 +219,17 @@ const Navbar = () => {
           </li>
         </Link>
       ))}
-      
+
       {boards.length === 0 && !loading && (
         <li className='text-center text-gray-400 py-4'>No boards found</li>
       )}
-      
+
       {loading && (
         <li className='text-center py-2'>
           <Loader2 className='h-4 w-4 animate-spin mx-auto' />
         </li>
       )}
-      
+
       {pagination.hasMore && boards.length > 0 && (
         <li className='text-center py-2'>
           <Button
@@ -252,16 +252,34 @@ const Navbar = () => {
   )
 
   return (
-    <div className='text-white h-16 w-full p-3'>
+    <div className='text-white h-16 w-full p-3 pl-7'>
       <div className='flex items-center justify-between'>
         <div className='flex items-center'>
 
-          <Logo className='mr-3' />
-          <div className='flex items-center gap-2'>
+          {/* <Logo className='mr-3' /> */}
+          <div className='flex gap-2 items-center justify-center mr-3'>
+            <div className="bg-gradient-to-br from-blue-500 to-blue-700 rounded-md p-2">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect x="3" y="4" width="7" height="5" rx="1" fill="white" />
+                <rect x="14" y="4" width="7" height="5" rx="1" fill="white" />
+                <rect x="3" y="15" width="7" height="5" rx="1" fill="white" />
+                <rect x="14" y="15" width="7" height="5" rx="1" fill="white" />
+              </svg>
+            </div>
+            <span className="font-semibold">Boardly</span>
+          </div>
+
+          <div className='flex items-center gap-1'>
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger 
+                  <NavigationMenuTrigger
                     className="bg-transparent active:!bg-slate-800"
                     onMouseEnter={handleRecentHover}
                   >
@@ -282,7 +300,7 @@ const Navbar = () => {
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger 
+                  <NavigationMenuTrigger
                     className="bg-transparent active:!bg-slate-800"
                     onMouseEnter={handleStarredHover}
                   >
