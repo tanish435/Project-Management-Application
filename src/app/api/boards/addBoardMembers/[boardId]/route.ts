@@ -37,13 +37,13 @@ export async function PATCH(req: Request, { params }: { params: { boardId: strin
             })
         }
 
-        if(!board.admin.equals(user._id)) {
-            const errResponse = new ApiResponse(403, null, "You are not authorised to add members")
-            return new Response(JSON.stringify(errResponse), {
-                status: errResponse.statusCode,
-                headers: { 'Content-Type': 'application/json' }
-            })
-        }
+        // if(!board.admin.equals(user._id)) {
+        //     const errResponse = new ApiResponse(403, null, "You are not authorised to add members")
+        //     return new Response(JSON.stringify(errResponse), {
+        //         status: errResponse.statusCode,
+        //         headers: { 'Content-Type': 'application/json' }
+        //     })
+        // }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!email || !emailRegex.test(email)) {
@@ -58,7 +58,7 @@ export async function PATCH(req: Request, { params }: { params: { boardId: strin
         if (!doesUserExist) {
             // send invite email to user
             const emailRes = await sendInvitationEmail(user.username, email, board.name)
-            if (emailRes.status !== 200) {
+            if (!emailRes.success) {
                 const emailRes = new ApiResponse(400, null, "Failed to send message")
                 return new Response(JSON.stringify(emailRes), {
                     status: emailRes.statusCode,
@@ -94,12 +94,13 @@ export async function PATCH(req: Request, { params }: { params: { boardId: strin
             })
         }
 
-        const addMember = await BoardModel.findByIdAndUpdate(
+        const updatedBoard = await BoardModel.findByIdAndUpdate(
             boardId,
-            { $addToSet: { members: doesUserExist._id } }
-        )
+            { $addToSet: { members: doesUserExist._id } },
+            { new: true }
+        ).populate('members', 'fullName username email avatar initials')
 
-        if (!addMember) {
+        if (!updatedBoard) {
             const errResponse = new ApiResponse(400, null, "Failed to add board member")
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,
@@ -107,7 +108,11 @@ export async function PATCH(req: Request, { params }: { params: { boardId: strin
             })
         }
 
-        const successResponse = new ApiResponse(200, { email, boardId }, "User added to board")
+        const successResponse = new ApiResponse(200, { 
+            email, 
+            boardId, 
+            updatedMembers: updatedBoard.members 
+        }, "User added to board successfully")
         return new Response(JSON.stringify(successResponse), {
             status: successResponse.statusCode,
             headers: { 'Content-Type': 'application/json' }
