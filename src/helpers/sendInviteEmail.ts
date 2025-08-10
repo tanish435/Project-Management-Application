@@ -1,27 +1,80 @@
 import { ApiResponse } from '@/utils/ApiResponse';
 import { resend } from '@/lib/resend';
+import nodemailer from 'nodemailer';
+import { render } from '@react-email/render';
 import { InvitationEmail } from '../../email/InviteEmail';
 
-export async function sendInvitationEmail(username: string, email: string, boardName: string): Promise<Response> {
-  try {
-    await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: email,
-      subject: 'Invitation to join project management platform',
-      react: InvitationEmail({email, invitedBy: username, boardName: boardName}),
-    });
+interface SendInvitationEmailResponse {
+  success: boolean;
+  message: string;
+}
 
-    const response = new ApiResponse(200, null, "Email sent successfully")
-    return new Response(JSON.stringify(response), {
-        status: response.statusCode
-    });
+export async function sendInvitationEmail(username: string, email: string, boardName: string): Promise<SendInvitationEmailResponse> {
+  // try {
+  //   await resend.emails.send({
+  //     from: 'onboarding@resend.dev',
+  //     to: email,
+  //     subject: 'Invitation to join project management platform',
+  //     react: InvitationEmail({email, invitedBy: username, boardName: boardName}),
+  //   });
 
-  } catch (error) {
-    console.log('Error sending email: ', error);
+  //   const response = new ApiResponse(200, null, "Email sent successfully")
+  //   return new Response(JSON.stringify(response), {
+  //       status: response.statusCode
+  //   });
+
+  // } catch (error) {
+  //   console.log('Error sending email: ', error);
     
-    const erroMsg = new ApiResponse(500, null, "Failed to send email")
-    return new Response(JSON.stringify(erroMsg), {
-        status: erroMsg.statusCode
-    });
-  }
+  //   const erroMsg = new ApiResponse(500, null, "Failed to send email")
+  //   return new Response(JSON.stringify(erroMsg), {
+  //       status: erroMsg.statusCode
+  //   });
+  // }
+
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.error("Missing email configuration");
+      return {
+        success: false,
+        message: "Email configuration missing"
+      };
+    }
+  
+    try {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+        tls: {
+          rejectUnauthorized: false
+        }
+      });
+  
+      const emailHtml = await render(InvitationEmail({email, invitedBy: username, boardName: boardName}));
+  
+      const mailOptions = {
+        from: `"Trello Clone" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: "Email Invitation Code",
+        html: emailHtml,
+      };
+  
+      await transporter.sendMail(mailOptions);
+      
+      return {
+        success: true,
+        message: "Invitation email sent successfully"
+      };
+    } catch (error) {
+      console.error("Error sending invitation email:", error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : "Failed to send invitation email"
+      };
+    }
 }

@@ -1,27 +1,61 @@
-import { ApiResponse } from '@/utils/ApiResponse';
-import {VerificationEmail} from '../../email/VerificationEmail';
-import { resend } from '@/lib/resend';
+import nodemailer from 'nodemailer';
+import { render } from '@react-email/render';
+import { VerificationEmail } from '../../email/VerificationEmail';
 
-export async function sendVerificationEmail(username: string, email: string, verifyCode: string): Promise<Response> {
+interface SendVerificationEmailResponse {
+  success: boolean;
+  message: string;
+}
+
+export const sendVerificationEmail = async (
+  email: string,
+  username: string,
+  verifyCode: string
+): Promise<SendVerificationEmailResponse> => {
+  // Validate environment variables
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+    console.error("Missing email configuration");
+    return {
+      success: false,
+      message: "Email configuration missing"
+    };
+  }
+
   try {
-    await resend.emails.send({
-      from: 'onboarding@resend.dev',
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
+
+    const emailHtml = await render(VerificationEmail({ username, otp: verifyCode }));
+
+    const mailOptions = {
+      from: `"Trello Clone" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: 'Verification Code',
-      react: VerificationEmail({ username, otp: verifyCode }),
-    });
+      subject: "Email Verification Code",
+      html: emailHtml,
+    };
 
-    const response = new ApiResponse(200, null, "Email sent successfully")
-    return new Response(JSON.stringify(response), {
-        status: response.statusCode
-    });
-
-  } catch (error) {
-    console.log('Error sending email: ', error);
+    await transporter.sendMail(mailOptions);
     
-    const erroMsg = new ApiResponse(500, null, "Failed to send email")
-    return new Response(JSON.stringify(erroMsg), {
-        status: erroMsg.statusCode
-    });
+    return {
+      success: true,
+      message: "Verification email sent successfully"
+    };
+  } catch (error) {
+    console.error("Error sending verification email:", error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to send verification email"
+    };
   }
 }

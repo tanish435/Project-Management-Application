@@ -10,7 +10,7 @@ import { deleteFromCloudinary } from "@/utils/cloudinary";
 export interface Board extends Document {
     name: string;
     bgColor: string;
-    url: string;  // Check : How to create unique url for every board
+    url: string;
     admin: Types.ObjectId;
     members: Types.ObjectId[];
     lists: Types.ObjectId[];
@@ -27,7 +27,7 @@ const BoardSchema: Schema<Board> = new Schema({
     },
     url: {
         type: String,
-        unique: true // Not sure
+        unique: true 
     },
     admin: {
         type: Schema.Types.ObjectId,
@@ -64,7 +64,7 @@ BoardSchema.pre('findOneAndDelete', async function (next) {
         }
 
         await AttachmentModel.deleteMany({card: {$in: cardIds}}).session(session)
-        await CommentModel.deleteMany({card: {in: cardIds}}).session(session)
+        await CommentModel.deleteMany({card: {$in: cardIds}}).session(session)
 
         const checklists = await ChecklistModel.find({card: {$in: cardIds}}).session(session)
         const checklistIds = checklists.map(checklist => checklist._id)
@@ -77,6 +77,7 @@ BoardSchema.pre('findOneAndDelete', async function (next) {
 
         await session.commitTransaction();
         session.endSession();
+        console.log('Pre-hook completed successfully');
         next()
     } catch (error: any) {
         await session.abortTransaction();
