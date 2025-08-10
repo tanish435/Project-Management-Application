@@ -237,6 +237,7 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
                                             list: 1,
                                             slug: 1,
                                             dueDate: 1,
+                                            members: 1,
                                             comments: { $cond: { if: { $isArray: "$comments" }, then: { $size: "$comments" }, else: 0 } },
                                             checklists: { $cond: { if: { $isArray: "$checklists" }, then: { $size: "$checklists" }, else: 0 } },
                                             attachments: { $cond: { if: { $isArray: "$attachments" }, then: { $size: "$attachments" }, else: 0 } },
