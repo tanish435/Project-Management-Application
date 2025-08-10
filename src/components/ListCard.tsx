@@ -22,6 +22,8 @@ import { DropdownMenuSubTrigger } from '@radix-ui/react-dropdown-menu';
 import { Dialog, DialogTrigger } from './ui/dialog';
 import CardComp from './Card';
 import ChangeCardMembers from './ChangeCardMembers';
+import { useMutation } from '@liveblocks/react';
+import { LiveList, LiveObject, Lson } from '@liveblocks/node';
 
 interface User {
     _id: string,
@@ -30,6 +32,43 @@ interface User {
     email: string;
     avatar: string;
     initials: string
+}
+
+interface UserLson {
+    _id: string;
+    fullName: string;
+    username: string;
+    email: string;
+    avatar: string;
+    initials: string;
+    [key: string]: Lson;
+}
+
+interface CardLson {
+    _id: string;
+    name: string;
+    description: string;
+    slug: string;
+    list: string;
+    position: number;
+    dueDate: string;
+    members: LiveList<LiveObject<UserLson>>;
+    comments: number;
+    checklists: number;
+    attachments: number;
+    [key: string]: Lson;
+}
+
+interface ListLson {
+    _id: string;
+    name: string;
+    position: number;
+    board: string;
+    createdAt: string;
+    updatedAt: string;
+    createdBy: LiveList<LiveObject<UserLson>>;
+    cards: LiveList<LiveObject<CardLson>>;
+    [key: string]: Lson;
 }
 
 interface Card {
@@ -51,6 +90,8 @@ interface props {
     boardMembers: User[]
     isDragging?: boolean;
 }
+
+// Make this and its child component stable
 
 const ListCard = ({ cardInfo, boardMembers, isDragging = false }: props) => {
     const [dueDate, setDueDate] = useState(cardInfo.dueDate)
@@ -93,6 +134,55 @@ const ListCard = ({ cardInfo, boardMembers, isDragging = false }: props) => {
     //     console.log("boardMembers", boardMembers);
     // }, [boardMembers]);
 
+    const deleteCard = useMutation(
+        async ({ storage }, cardId: string, listId: string) => {
+            // Get lists from storage (not cards)
+            const lists = storage.get('lists') as LiveList<LiveObject<ListLson>>;
+            
+            // Find the specific list containing the card
+            const list = lists?.find((list) => list.get("_id") === listId);
+    
+            if (list) {
+                // Get the cards array from the list
+                const cards = list.get('cards') as LiveList<LiveObject<CardLson>>;
+                
+                // Find the index of the card to delete
+                const cardIndex = cards.findIndex((card) => card.get('_id') === cardId);
+    
+                if (cardIndex !== -1) {
+                    // Delete the card from Liveblocks first
+                    cards.delete(cardIndex);
+                    
+                    // Update positions of remaining cards
+                    cards.toArray().forEach((card, index) => {
+                        card.set('position', index);
+                    });
+                }
+            }
+    
+            try {
+                // Then delete from database
+                const response = await axios.delete(`/api/cards/deleteCard/${cardId}`);
+    
+                if (response.data.success) {
+                    toast.success('Card deleted');
+                }
+            } catch (error) {
+                const axiosError = error as AxiosError<ApiResponse>;
+                const errMsg = axiosError.response?.data.message;
+    
+                toast.error('Failed to delete card', {
+                    description: errMsg
+                });
+                
+                // If database deletion failed, we might want to revert the Liveblocks change
+                // This would require storing the deleted card data and re-inserting it
+            }
+        }, 
+        [] // Dependencies array
+    );
+    
+
 
     return (
         <>
@@ -131,7 +221,10 @@ const ListCard = ({ cardInfo, boardMembers, isDragging = false }: props) => {
                                                 setCardMembers={setCardMembers}
                                             />
                                         </DropdownMenuSub>
-                                        <DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onClick={() => deleteCard(cardInfo._id, cardInfo.list)}
+                                            className='hover:bg-[#0f1628]'
+                                        >
                                             Delete card
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>

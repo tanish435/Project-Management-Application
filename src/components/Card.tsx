@@ -5,7 +5,7 @@ import { ApiResponse } from '@/utils/ApiResponse';
 import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import ChangeCardMembers from './ChangeCardMembers';
-import { Ellipsis, List, Paperclip, Plus, SquareCheckBig, Text, Trash2, UserRoundPlus, X } from 'lucide-react';
+import { Ellipsis, List, Paperclip, Plus, SquareCheckBig, Text, Trash2, UserRound, UserRoundPlus, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 import { Textarea } from './ui/textarea';
@@ -27,6 +27,7 @@ import { Progress } from './ui/progress';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { PopoverClose } from '@radix-ui/react-popover';
 import CommentEditor from './CommentEditor';
+import EditableCardTitle from './EditableCardTitle';
 
 interface User {
     _id: string,
@@ -118,7 +119,7 @@ const Card = ({ cardInfo, boardMembers, cardMembers, setCardMembers, description
     const [editedContent, setEditedContent] = useState('')
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
     const [commentToEdit, setCommentToEdit] = useState<Comment | null>(null);
-
+    const [cardName, setCardName] = useState(cardInfo.name);
 
     const [isCardLoading, setIsCardLoading] = useState<boolean>(false)
 
@@ -440,6 +441,11 @@ const Card = ({ cardInfo, boardMembers, cardMembers, setCardMembers, description
 
     return (
         <DialogContent className='h-[600px] max-w-[768px] flex flex-col bg-gray-700'>
+            {/* <EditableCardTitle
+                cardId={cardInfo._id}
+                cardName={cardName}
+                onNameUpdate={setCardName}
+            /> */}
             <DialogHeader className='flex flex-'>
                 <DialogTitle className='text-xl'>
                     {cardInfo.name}
@@ -448,35 +454,27 @@ const Card = ({ cardInfo, boardMembers, cardMembers, setCardMembers, description
             </DialogHeader>
 
             <div className='flex flex-col gap-2 overflow-y-auto space-y-5 pr3 scrollbar-hide'>
-                <section className='flex flex-col'>
-                    <span className='mb-2 text-sm text-gray-400 font-semibold'>Members</span>
-                    <div className='flex gap-1'>
-                        {cardMembers?.map((member) => (
-                            <Avatar className='h-7 w-7' key={member._id}>
-                                <AvatarImage src={member.avatar} alt={member.username} />
-                                <AvatarFallback className='text-xs'>{member.initials}</AvatarFallback>
-                            </Avatar>
-                        ))}
-                        <span
-                            onClick={(e) => e.stopPropagation()}
-                            onMouseDown={(e) => e.stopPropagation()}
-                            className='rounded'
-                        >
-                            <ChangeCardMembers
-                                cardId={cardInfo._id}
-                                boardMembers={boardMembers}
-                                cardMembers={cardMembers as User[]}
-                                setCardMembers={setCardMembers}
-                                trigger={<Plus />}
-                            />
-                        </span>
-                    </div>
+                <section className='flex gap-2'>
+                    <ChangeCardMembers
+                        cardId={cardInfo._id}
+                        cardMembers={cardMembers}
+                        setCardMembers={setCardMembers}
+                        boardMembers={boardMembers}
+                        trigger={
+                            <Button className='bg-gray-700 border-2'>
+                                <UserRoundPlus />
+                                Members
+                            </Button>
+                        }
+                    />
 
-                    {/* Temp button to create checklist */}
                     <div>
                         <Popover>
                             <PopoverTrigger asChild>
-                                <Button className=' bg-gray-700 hover:bg-gray-600 ml-2'>Create Checklist</Button>
+                                <Button className='bg-gray-700 border-2'>
+                                    <SquareCheckBig />
+                                    Checklist
+                                </Button>
                             </PopoverTrigger>
                             <PopoverContent className="">
                                 <Form {...createChecklistForm}>
@@ -506,7 +504,52 @@ const Card = ({ cardInfo, boardMembers, cardMembers, setCardMembers, description
                             </PopoverContent>
                         </Popover>
                     </div>
+
+
+                    <AddAttachmentPopover
+                        cardId={cardInfo._id}
+                        attachments={attachments}
+                        setAttachments={setAttachments}
+                        trigger={
+                            <Button className='bg-gray-700 border-2'>
+                                <Paperclip />
+                                Attachment
+                            </Button>
+                        }
+                    />
+
                 </section>
+
+                {cardMembers && cardMembers.length > 0 &&
+                    <section className='flex flex-col'>
+                        <span className='mb-2 text-sm text-gray-400 font-semibold'>Members</span>
+                        <div className='flex gap-1'>
+                            {cardMembers?.map((member) => (
+                                <Avatar className='h-7 w-7' key={member._id}>
+                                    <AvatarImage src={member.avatar} alt={member.username} />
+                                    <AvatarFallback className='text-xs'>{member.initials}</AvatarFallback>
+                                </Avatar>
+                            ))}
+                            <span
+                                onClick={(e) => e.stopPropagation()}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                className='rounded'
+                            >
+                                <ChangeCardMembers
+                                    cardId={cardInfo._id}
+                                    boardMembers={boardMembers}
+                                    cardMembers={cardMembers as User[]}
+                                    setCardMembers={setCardMembers}
+                                    trigger={
+                                        <Button className='bg-gray-700 h-7 w-7 p-0 hover:bg-gray-600 rounded-full'>
+                                            <Plus />
+                                        </Button>
+                                    }
+                                />
+                            </span>
+                        </div>
+                    </section>
+                }
 
 
                 <section className="grid grid-cols-[40px_minmax(0,1fr)] gap-y-3 mb-6 justify-items-stretch content-around">
@@ -558,7 +601,7 @@ const Card = ({ cardInfo, boardMembers, cardMembers, setCardMembers, description
 
                 </section>
 
-                <section className="grid grid-cols-[40px_minmax(0,1fr)] gap-y-3 mb-6 justify-items-stretch content-around">
+                {attachments.length > 0 && <section className="grid grid-cols-[40px_minmax(0,1fr)] gap-y-3 mb-6 justify-items-stretch content-around">
                     <div className="text-gray-400 flex items-center justify-center">
                         <Paperclip className='h-5 w-5' />
                     </div>
@@ -651,7 +694,7 @@ const Card = ({ cardInfo, boardMembers, cardMembers, setCardMembers, description
                             </ul>
                         </div>
                     </div>
-                </section>
+                </section>}
 
                 {checklists && checklists.map((checklist) => (
                     <section key={checklist._id} className="grid grid-cols-[40px_minmax(0,1fr)] gap-y-3 mb-6 justify-items-stretch content-around">
