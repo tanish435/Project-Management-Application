@@ -12,7 +12,6 @@ export const sendVerificationEmail = async (
   username: string,
   verifyCode: string
 ): Promise<SendVerificationEmailResponse> => {
-  // Validate environment variables
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
     console.error("Missing email configuration");
     return {
