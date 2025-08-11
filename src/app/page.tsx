@@ -4,7 +4,7 @@ import React from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Check, Grid, List, Users, Plus } from "lucide-react"
+import { Check, Grid, List, Users, Plus, NotebookPen, SquareKanban } from "lucide-react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
@@ -27,7 +27,7 @@ export default function Home() {
           </motion.h1>
 
           <p className="mt-4 text-slate-300 max-w-xl">
-            Boardly is a lightweight, flexible project board for teams of any size. Visualize work, collaborate in real time, and keep every project moving forward.
+            Atlas is a lightweight, flexible project board for teams of any size. Visualize work, collaborate in real time, and keep every project moving forward.
           </p>
 
           <div className="mt-6 flex gap-3">
@@ -170,7 +170,7 @@ export default function Home() {
             <CardContent>
               <div className="flex justify-center mb-4">
                 <div className="p-3 bg-slate-700 rounded-full">
-                  📋
+                  <SquareKanban />
                 </div>
               </div>
               <h4 className="text-lg font-semibold">1. Create a Board</h4>
@@ -184,7 +184,7 @@ export default function Home() {
             <CardContent>
               <div className="flex justify-center mb-4">
                 <div className="p-3 bg-slate-700 rounded-full">
-                  📝
+                  <NotebookPen />
                 </div>
               </div>
               <h4 className="text-lg font-semibold">2. Add & Assign Tasks</h4>
@@ -198,7 +198,7 @@ export default function Home() {
             <CardContent>
               <div className="flex justify-center mb-4">
                 <div className="p-3 bg-slate-700 rounded-full">
-                  ✅
+                  <Check />
                 </div>
               </div>
               <h4 className="text-lg font-semibold">3. Track Progress</h4>
@@ -230,12 +230,12 @@ export default function Home() {
               </svg>
             </div>
             <div>
-              <div className="font-semibold">Boardly</div>
+              <div className="font-sansation font-semibold">Atlas</div>
               <div className="text-xs text-slate-400">Trello-like boards for teams</div>
             </div>
           </div>
 
-          <div className="text-sm text-slate-400">© {new Date().getFullYear()} Boardly — Built with ❤️</div>
+          <div className="text-sm text-slate-400">© {new Date().getFullYear()} Atlas — Built with ❤️</div>
         </div>
       </footer>
     </main>

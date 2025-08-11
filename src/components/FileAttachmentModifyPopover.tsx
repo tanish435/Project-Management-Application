@@ -9,26 +9,7 @@ import { Label } from './ui/label'
 import axios, { AxiosError } from 'axios'
 import { ApiResponse } from '@/utils/ApiResponse'
 import { toast } from 'sonner'
-
-interface User {
-    _id: string,
-    fullName: string,
-    username: string;
-    email: string;
-    avatar: string;
-    initials: string
-}
-
-interface Attachment {
-    _id: string;
-    name: string;
-    url: string;
-    card: string
-    isWebsiteLink: number;
-    createdAt: string;
-    updatedAt: string;
-    attachedBy: User[]
-}
+import { Attachment } from '@/types/interface'
 
 interface Props {
     cardId: string

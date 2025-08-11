@@ -13,15 +13,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/t
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { User } from '@/types/interface';
 
-interface User {
-  _id: string,
-  fullName: string,
-  username: string;
-  email: string;
-  avatar: string;
-  initials: string
-}
 
 interface NavbarProps {
   _id: string

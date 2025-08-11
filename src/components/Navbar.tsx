@@ -272,7 +272,9 @@ const Navbar = () => {
                 <rect x="14" y="15" width="7" height="5" rx="1" fill="white" />
               </svg>
             </div>
-            <span className="font-semibold">Boardly</span>
+            <span className={`font-sansation text-xl`}>
+              Atlas
+            </span>
           </div>
 
           <div className='flex items-center gap-1'>

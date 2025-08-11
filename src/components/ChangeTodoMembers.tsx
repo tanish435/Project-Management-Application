@@ -11,15 +11,7 @@ import axios, { AxiosError } from 'axios'
 import { ApiResponse } from '@/utils/ApiResponse'
 import { toast } from 'sonner'
 import { useState } from 'react'
-
-interface User {
-    _id: string
-    fullName: string
-    username: string
-    email: string
-    avatar: string
-    initials: string
-}
+import { User } from '@/types/interface'
 
 interface Props {
     cardId: string

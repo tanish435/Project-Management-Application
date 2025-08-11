@@ -7,52 +7,7 @@ import { LiveList, LiveObject } from '@liveblocks/client';
 import axios, { AxiosError } from 'axios';
 import { ApiResponse } from '@/utils/ApiResponse';
 import { toast } from 'sonner';
-
-interface User {
-    _id: string;
-    fullName: string;
-    username: string;
-    email: string;
-    avatar: string;
-    initials: string;
-}
-
-interface UserLson {
-    _id: string;
-    fullName: string;
-    username: string;
-    email: string;
-    avatar: string;
-    initials: string;
-    [key: string]: any;
-}
-
-interface CardLson {
-    _id: string;
-    name: string;
-    description: string;
-    slug: string;
-    list: string;
-    position: number;
-    dueDate: string;
-    members: LiveList<LiveObject<UserLson>>;
-    comments: number;
-    checklists: number;
-    attachments: number;
-    [key: string]: any;
-}
-
-interface ListLson {
-    _id: string;
-    name: string;
-    position: number;
-    board: string;
-    createdAt: string;
-    updatedAt: string;
-    createdBy: LiveList<LiveObject<UserLson>>;
-    cards: LiveList<LiveObject<CardLson>>;
-    [key: string]: any;
-}
+import { ListLson, User, UserLson } from '@/types/interface';
 
 interface CreateListButtonProps {
     boardId: string;

@@ -12,26 +12,7 @@ import { z } from 'zod'
 import { urlSchema } from '@/schemas/attachmentSchema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form'
-
-interface User {
-  _id: string,
-  fullName: string,
-  username: string;
-  email: string;
-  avatar: string;
-  initials: string
-}
-
-interface Attachment {
-  _id: string;
-  name: string;
-  url: string;
-  card: string
-  isWebsiteLink: number;
-  createdAt: string;
-  updatedAt: string;
-  attachedBy: User[]
-}
+import { Attachment } from '@/types/interface'
 
 interface props {
   cardId: string

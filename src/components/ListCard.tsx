@@ -24,66 +24,7 @@ import CardComp from './Card';
 import ChangeCardMembers from './ChangeCardMembers';
 import { useMutation } from '@liveblocks/react';
 import { LiveList, LiveObject, Lson } from '@liveblocks/node';
-
-interface User {
-    _id: string,
-    fullName: string,
-    username: string;
-    email: string;
-    avatar: string;
-    initials: string
-}
-
-interface UserLson {
-    _id: string;
-    fullName: string;
-    username: string;
-    email: string;
-    avatar: string;
-    initials: string;
-    [key: string]: Lson;
-}
-
-interface CardLson {
-    _id: string;
-    name: string;
-    description: string;
-    slug: string;
-    list: string;
-    position: number;
-    dueDate: string;
-    members: LiveList<LiveObject<UserLson>>;
-    comments: number;
-    checklists: number;
-    attachments: number;
-    [key: string]: Lson;
-}
-
-interface ListLson {
-    _id: string;
-    name: string;
-    position: number;
-    board: string;
-    createdAt: string;
-    updatedAt: string;
-    createdBy: LiveList<LiveObject<UserLson>>;
-    cards: LiveList<LiveObject<CardLson>>;
-    [key: string]: Lson;
-}
-
-interface Card {
-    _id: string;
-    name: string;
-    description: string;
-    list: string
-    position: number;
-    dueDate: string;
-    comments: number;
-    checklists: number;
-    attachments: number;
-    slug: string
-    members: User[]
-}
+import { Card, CardLson, ListLson, User } from '@/types/interface';
 
 interface props {
     cardInfo: Card

@@ -12,24 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@/component
 import { ApiResponse } from '@/utils/ApiResponse'
 import { descriptionSchema } from '@/schemas/cardSchema'
 import { commentSchema } from '@/schemas/commentSchema'
-
-interface User {
-  _id: string,
-  fullName: string,
-  username: string;
-  email: string;
-  avatar: string;
-  initials: string
-}
-
-interface Comment {
-  _id: string
-  content: string
-  owner: User
-  card: string
-  createdAt: string
-  updatedAt: string
-}
+import { Comment } from '@/types/interface'
 
 interface CommentEditorProps {
   cardId: string

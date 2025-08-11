@@ -18,77 +18,7 @@ import ListCard from './ListCard';
 import { useMutation, useStorage } from '@liveblocks/react';
 import { LiveList, LiveObject, Lson } from '@liveblocks/client';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
-
-
-interface CardInter {
-    _id: string;
-    name: string;
-    description: string;
-    slug: string;
-    list: string
-    position: number;
-    dueDate: string;
-    members: User[]
-    comments: number;
-    checklists: number;
-    attachments: number;
-}
-
-interface List {
-    _id: string;
-    name: string;
-    position: number;
-    board: string;
-    createdAt: string;
-    updatedAt: string;
-    createdBy: User[];
-    cards: CardInter[];
-}
-interface UserLson {
-    _id: string;
-    fullName: string;
-    username: string;
-    email: string;
-    avatar: string;
-    initials: string;
-    [key: string]: Lson;
-}
-
-interface CardLson {
-    _id: string;
-    name: string;
-    description: string;
-    slug: string;
-    list: string;
-    position: number;
-    dueDate: string;
-    members: LiveList<LiveObject<UserLson>>;
-    comments: number;
-    checklists: number;
-    attachments: number;
-    [key: string]: Lson;
-}
-
-interface ListLson {
-    _id: string;
-    name: string;
-    position: number;
-    board: string;
-    createdAt: string;
-    updatedAt: string;
-    createdBy: LiveList<LiveObject<UserLson>>;
-    cards: LiveList<LiveObject<CardLson>>;
-    [key: string]: Lson;
-}
-
-interface User {
-    _id: string;
-    fullName: string;
-    username: string;
-    email: string;
-    avatar: string;
-    initials: string;
-}
+import { CardLson, List, ListLson, User } from '@/types/interface';
 
 interface props {
     listInfo: List;

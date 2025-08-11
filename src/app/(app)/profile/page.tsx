@@ -42,15 +42,8 @@ import {
   X,
   Upload
 } from 'lucide-react'
+import { User as UserData } from '@/types/interface';
 
-interface UserData {
-  _id: string;
-  username: string;
-  fullName: string;
-  email: string;
-  avatar?: string;
-  initials: string;
-}
 
 const ProfilePage = () => {
   const { data: session, update: updateSession } = useSession()

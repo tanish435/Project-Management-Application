@@ -27,75 +27,10 @@ import { Progress } from './ui/progress';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { PopoverClose } from '@radix-ui/react-popover';
 import CommentEditor from './CommentEditor';
-import EditableCardTitle from './EditableCardTitle';
-
-interface User {
-    _id: string,
-    fullName: string,
-    username: string;
-    email: string;
-    avatar: string;
-    initials: string
-}
-
-interface Todo {
-    _id: string;
-    content: string;
-    complete: boolean;
-    pos: number;
-    checklist: string;
-    assignedTo: User[];
-    createdBy: User;
-    createdAt: string;
-    updatedAt: string;
-}
-
-interface Comment {
-    _id: string
-    content: string
-    owner: User
-    card: string
-    createdAt: string
-    updatedAt: string
-}
-
-interface Checklist {
-    _id: string;
-    name: string;
-    createdBy: User
-    card: string
-    todos: Todo[]
-    createdAt: string;
-    updatedAt: string
-}
-
-interface Card {
-    _id: string;
-    name: string;
-    description: string;
-    list: string
-    position: number;
-    dueDate: string;
-    comments: number;
-    checklists: number;
-    attachments: number;
-    members: User[]
-    slug: string
-}
-
-interface Attachment {
-    _id: string;
-    name: string;
-    url: string;
-    card: string
-    isWebsiteLink: number;
-    createdAt: string;
-    updatedAt: string;
-    attachedBy: User[]
-}
+import { Attachment, Card as C, Checklist, Todo, User, Comment } from '@/types/interface';
 
 interface props {
-    cardInfo: Card
+    cardInfo: C
     boardMembers: User[]
     cardMembers: User[];
     description: string
@@ -106,7 +41,7 @@ interface props {
 
 const Card = ({ cardInfo, boardMembers, cardMembers, setCardMembers, description, setDescription }: props) => {
     const [slug, setSlug] = useState(cardInfo?.slug)
-    const [cardData, setCardData] = useState<Card | null>();
+    const [cardData, setCardData] = useState<C | null>();
     const [isEditDescriptionActive, setIsEditDescriptionActive] = useState(false)
     const [attachments, setAttachments] = useState<Attachment[]>([])
     const [checklists, setChecklists] = useState<Checklist[]>([])

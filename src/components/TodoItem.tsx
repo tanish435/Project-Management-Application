@@ -7,27 +7,7 @@ import ChangeTodoMembers from "./ChangeTodoMembers";
 import { Trash2 } from "lucide-react";
 import axios, { AxiosError } from "axios";
 import { toast } from "sonner";
-
-interface User {
-  _id: string;
-  fullName: string;
-  username: string;
-  email: string;
-  avatar: string;
-  initials: string;
-}
-
-interface Todo {
-  _id: string;
-  content: string;
-  complete: boolean;
-  pos: number;
-  checklist: string;
-  assignedTo: User[];
-  createdBy: User;
-  createdAt: string;
-  updatedAt: string;
-}
+import { Todo, User } from "@/types/interface";
 
 interface ApiResponse {
   success: boolean;
