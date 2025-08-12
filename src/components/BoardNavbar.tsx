@@ -1,16 +1,16 @@
 import { ApiResponse } from '@/utils/ApiResponse';
 import axios, { AxiosError } from 'axios';
-import { Ellipsis, Star, UserMinus, UserPlus } from 'lucide-react';
+import { Ellipsis, Star, UserMinus } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { Button } from './ui/button';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from './ui/alert-dialog';
 import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { User } from '@/types/interface';
@@ -48,7 +48,6 @@ const BoardNavbar = ({ _id, boardName, members: initialMembers, onMembersUpdate 
   // Add state for email input and dialog
   const [inviteEmail, setInviteEmail] = useState('')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [userToRemove, setUserToRemove] = useState<User | null>(null)
   const { slug } = useParams<{ slug: string }>()
 

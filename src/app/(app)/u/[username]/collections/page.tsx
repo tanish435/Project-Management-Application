@@ -20,9 +20,11 @@ interface Collection {
 }
 
 const page = () => {
-    const [boardPage, setBoardPage] = useState(1)
-    const [boardLimit, setBoardLimit] = useState(10)
-    const [loadMore, setLoadMore] = useState(false)
+    const boardPage = 1;
+    const boardLimit = 10
+    // const [boardPage, setBoardPage] = useState(1)
+    // const [boardLimit, setBoardLimit] = useState(10)
+    // const [loadMore, setLoadMore] = useState(false)
     const [loading, setLoading] = useState(false)
     const [boardInfo, setBoardInfo] = useState<Board[]>([])
     const [starredBoards, setStarredBoards] = useState<Board[]>([])
@@ -90,7 +92,7 @@ const page = () => {
 
     useEffect(() => {
         const getUserBoards = async () => {
-            setLoadMore(true)
+            // setLoadMore(true)
             setLoading(true)
             try {
                 const response = await axios.get(`/api/boards/getAllUserBoards?page=${boardPage}&limit=${boardLimit}`)
@@ -104,7 +106,7 @@ const page = () => {
                     description: errMsg,
                 })
             } finally {
-                setLoadMore(false)
+                // setLoadMore(false)
                 setLoading(false)
             }
         }

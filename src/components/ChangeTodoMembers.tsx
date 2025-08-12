@@ -5,8 +5,7 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Ellipsis, UserRoundPlus, X } from 'lucide-react'
+import { UserRoundPlus, X } from 'lucide-react'
 import axios, { AxiosError } from 'axios'
 import { ApiResponse } from '@/utils/ApiResponse'
 import { toast } from 'sonner'

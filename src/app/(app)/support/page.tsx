@@ -4,15 +4,10 @@ import React from 'react'
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import {
   Accordion,
@@ -22,15 +17,10 @@ import {
 } from "@/components/ui/accordion"
 import {
   HelpCircle,
-  Mail,
-  MessageCircle,
-  Phone,
   Clock,
   MapPin,
-  Send,
   BookOpen,
   Bug,
-  Lightbulb,
   Shield,
   Zap,
   Users,
@@ -40,12 +30,6 @@ import {
 } from 'lucide-react'
 
 const SupportPage = () => {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Handle form submission here
-    console.log('Support form submitted')
-  }
-
   const faqs = [
     {
       question: "How do I create my first board?",
@@ -118,7 +102,7 @@ const SupportPage = () => {
             <h1 className="text-4xl font-bold tracking-tight">Support Center</h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            We're here to help you get the most out of your experience. Find answers to common questions or get in touch with our support team.
+            We&apos;re here to help you get the most out of your experience. Find answers to common questions or get in touch with our support team.
           </p>
         </div>
 
@@ -266,7 +250,7 @@ const SupportPage = () => {
           <CardContent className="p-8 text-center">
             <h3 className="text-2xl font-bold mb-4">Still Need Help?</h3>
             <p className="mb-6 opacity-90">
-              Our support team is standing by to help you succeed. Don't hesitate to reach out!
+              Our support team is standing by to help you succeed. Don&apos;t hesitate to reach out!
             </p>
             <Button size="lg" variant="secondary">
               Contact Support Team

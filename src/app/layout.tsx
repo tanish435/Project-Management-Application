@@ -5,7 +5,6 @@ import AuthProvider from "@/context/AuthProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/options";
-import AuthenticatedLayout from '@/app/(app)/u/layout';
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import NavbarPublic from "@/components/NavbarPublic";

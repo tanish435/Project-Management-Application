@@ -5,12 +5,10 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios, { AxiosError } from 'axios'
 import { toast } from 'sonner'
-
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { ApiResponse } from '@/utils/ApiResponse'
-import { descriptionSchema } from '@/schemas/cardSchema'
 import { commentSchema } from '@/schemas/commentSchema'
 import { Comment } from '@/types/interface'
 

@@ -8,12 +8,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -26,13 +21,12 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar"
-import Logo from './Logo'
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from './ui/navigation-menu'
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuList, NavigationMenuTrigger } from './ui/navigation-menu'
 import axios, { AxiosError } from 'axios'
 import { toast } from 'sonner'
 import { ApiResponse } from '@/utils/ApiResponse'
 import Link from 'next/link'
-import { Computer, Moon, Star, Sun, ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
+import { ChevronDown, Loader2 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import CreateBoardTemplate from './CreateBoardTemplate'
 import { Button } from './ui/button'
@@ -76,7 +70,7 @@ const Navbar = () => {
   const [boardsFetched, setBoardsFetched] = useState(false)
   const [starredBoardsFetched, setStarredBoardsFetched] = useState(false)
 
-  const { setTheme } = useTheme()
+  // const { setTheme } = useTheme()
 
   useEffect(() => {
     const fetchAuthenticatedUser = async () => {

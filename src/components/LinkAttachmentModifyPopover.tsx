@@ -1,62 +1,7 @@
-// import React, { useState } from 'react'
-
-// const LinkAttachmentModifyPopover = () => {
-//   const [isSelectActive, setIsSelectActive] = useState(true)
-//   const [isEditActive, setIsEditActive] = useState(false)
-//   const [isDeleteActive, setIsDeleteActive] = useState(false)
-  
-//   return (
-//     <div className='p-2 bg-slate-800 border-slate-700 border-2 rounded '>
-//       {isSelectActive ? (
-//         <div>
-//           <div
-//           className='flex items-center justify-start w-full rounded hover:bg-slate-700 p-1 px-3 text-sm'
-//           onClick={() => {
-//             setIsSelectActive(false)
-//             setIsEditActive(true)
-//           }}
-//           >
-//             Edit
-//           </div>
-//           <div
-//           className='flex items-center justify-start w-full rounded hover:bg-slate-700 p-1 px-3 text-sm'
-//           onClick={() => {
-//             setIsSelectActive(false)
-//             setIsDeleteActive(true)
-//           }}  
-//           >
-//             Delete
-//           </div>
-//         </div>
-//       ) : 
-
-//       // Complete this
-//       (
-//         isEditActive ? (
-//           <div>
-//             edit
-//           </div>
-//         ) :
-//         (
-//           <div>
-//             delete
-//           </div>
-//         )
-//       )
-//     }
-//     </div>
-//   )
-// }
-
-
-// export default LinkAttachmentModifyPopover
-
-
 'use client'
 import React, { useState } from 'react'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
-import { Separator } from './ui/separator'
 import { ChevronLeft, X } from 'lucide-react'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { Label } from './ui/label'
@@ -74,7 +19,7 @@ interface Props {
 const LinkAttachmentModifyPopover = ({ cardId, link, setAttachments }: Props) => {
   const [isSelectActive, setIsSelectActive] = useState(true)
   const [isEditActive, setIsEditActive] = useState(false)
-  const [isDeleteActive, setIsDeleteActive] = useState(false)
+  // const [isDeleteActive, setIsDeleteActive] = useState(false)
 
   const [newLink, setNewLink] = useState(link.url)
   const [newName, setNewName] = useState(link.name)
@@ -141,7 +86,7 @@ const LinkAttachmentModifyPopover = ({ cardId, link, setAttachments }: Props) =>
             className="flex items-center justify-start w-full rounded hover:bg-slate-700 p-2 text-sm cursor-pointer"
             onClick={() => {
               setIsSelectActive(false)
-              setIsDeleteActive(true)
+              // setIsDeleteActive(true)
             }}
           >
             Delete
@@ -193,7 +138,7 @@ const LinkAttachmentModifyPopover = ({ cardId, link, setAttachments }: Props) =>
             <Button
               variant="ghost"
               onClick={() => {
-                setIsDeleteActive(false)
+                // setIsDeleteActive(false)
                 setIsSelectActive(true)
               }}
               className="w-8 hover:bg-gray-700 h-auto"

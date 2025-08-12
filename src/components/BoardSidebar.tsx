@@ -4,7 +4,7 @@ import { Session } from 'next-auth'
 import { getSession } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarTrigger } from './ui/sidebar'
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu } from './ui/sidebar'
 import { Star } from 'lucide-react'
 import Link from 'next/link'
 import { Separator } from './ui/separator'
@@ -137,7 +137,7 @@ const BoardSidebar = () => {
         }
     }, [starredBoards, boardLoading, starredBoardLoading, boards])
 
-    const toggleStarredStatus = async (boardId: string, currentStarredStatus: boolean, event: React.MouseEvent) => {
+    const toggleStarredStatus = async (boardId: string, event: React.MouseEvent) => {
         event.preventDefault() // Prevent navigation
         event.stopPropagation()
         
@@ -219,7 +219,7 @@ const BoardSidebar = () => {
                                                 variant="ghost"
                                                 size="sm"
                                                 className="p-1 h-auto hover:bg-slate-600 rounded mr-1"
-                                                onClick={(e) => toggleStarredStatus(board._id, board.isStarred, e)}
+                                                onClick={(e) => toggleStarredStatus(board._id, e)}
                                                 disabled={togglingBoards.has(board._id)}
                                                 title={board.isStarred ? "Remove from starred boards" : "Add to starred boards"}
                                             >

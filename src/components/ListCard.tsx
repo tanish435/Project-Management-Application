@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Badge } from './ui/badge';
-import { Ellipsis, ListChecks, MessageSquare, Minus, Paperclip, Text, X } from 'lucide-react';
+import { Ellipsis, ListChecks, MessageSquare, Minus, Paperclip, Text} from 'lucide-react';
 import axios, { AxiosError } from 'axios';
 import { ApiResponse } from '@/utils/ApiResponse';
 import { toast } from 'sonner';
@@ -8,22 +8,16 @@ import { Draggable } from '@hello-pangea/dnd';
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuGroup,
     DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuPortal,
-    DropdownMenuSeparator,
     DropdownMenuSub,
-    DropdownMenuSubContent,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { DropdownMenuSubTrigger } from '@radix-ui/react-dropdown-menu';
-import { Dialog, DialogTrigger } from './ui/dialog';
+import { Dialog } from './ui/dialog';
 import CardComp from './Card';
 import ChangeCardMembers from './ChangeCardMembers';
 import { useMutation } from '@liveblocks/react';
-import { LiveList, LiveObject, Lson } from '@liveblocks/node';
+import { LiveList, LiveObject } from '@liveblocks/node';
 import { Card, CardLson, ListLson, User } from '@/types/interface';
 
 interface props {
@@ -35,7 +29,8 @@ interface props {
 // Make this and its child component stable
 
 const ListCard = ({ cardInfo, boardMembers, isDragging = false }: props) => {
-    const [dueDate, setDueDate] = useState(cardInfo.dueDate)
+    const dueDate = cardInfo?.dueDate
+    // const [dueDate, setDueDate] = useState(cardInfo.dueDate)
     const [cardMembers, setCardMembers] = useState<User[]>([])
     const [isCardActive, setIsCardActive] = useState(false)
     const [description, setDescription] = useState(cardInfo.description)

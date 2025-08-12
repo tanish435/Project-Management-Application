@@ -5,20 +5,18 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { signInSchema } from '@/schemas/signInSchema'
 import { zodResolver } from "@hookform/resolvers/zod"
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import Link from 'next/link'
 
 const page = () => {
@@ -28,6 +26,9 @@ const page = () => {
   }, [])
 
   const router = useRouter()
+
+  const {data: session} = useSession()
+  const username = session?.user?.username
 
 
   const form = useForm<z.infer<typeof signInSchema>>({
@@ -60,7 +61,7 @@ const page = () => {
     }
 
     if (result?.url) {
-      router.replace('/u') // Pending: dont know actually where to redirect
+      router.replace(`/u/${username}/boards`) // Pending: dont know actually where to redirect
     }
   }
 

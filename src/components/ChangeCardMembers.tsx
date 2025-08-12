@@ -6,13 +6,13 @@ import {
 } from '@/components/ui/popover'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { Ellipsis, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import axios, { AxiosError } from 'axios'
 import { ApiResponse } from '@/utils/ApiResponse'
 import { toast } from 'sonner'
 import { useState } from 'react'
-import { useMutation, useStorage } from '@liveblocks/react'
-import { LiveList, LiveObject, Lson } from '@liveblocks/client'
+import { useMutation } from '@liveblocks/react'
+import { LiveList, LiveObject } from '@liveblocks/client'
 import { CardLson, ListLson, User, UserLson } from '@/types/interface'
 
 
@@ -30,7 +30,6 @@ const ChangeCardMembers = ({ cardId, cardMembers, setCardMembers, boardMembers, 
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     
     // Get lists from Liveblocks storage
-    const lists = useStorage((root) => root.lists as LiveList<LiveObject<ListLson>> | null);
     
     const filteredBoardMembers = boardMembers.filter(
         (boardMember) => !cardMembers?.some((cardMember) => cardMember._id === boardMember._id)

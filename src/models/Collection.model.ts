@@ -1,4 +1,3 @@
-import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose, { Document, Schema, Model, Types } from "mongoose";
 import UserModel from "./User.model";
 

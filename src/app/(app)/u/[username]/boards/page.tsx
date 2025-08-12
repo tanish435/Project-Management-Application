@@ -22,9 +22,11 @@ interface Board {
 }
 
 const BoardPage = () => {
-    const [boardPage, setBoardPage] = useState(1)
-    const [boardLimit, setBoardLimit] = useState(10)
-    const [loadMore, setLoadMore] = useState(false)
+    const boardPage = 1;
+    const boardLimit = 10
+    // const [boardPage, setBoardPage] = useState(1)
+    // const [boardLimit, setBoardLimit] = useState(10)
+    // const [loadMore, setLoadMore] = useState(false)
     const [loading, setLoading] = useState(false)
     const [boardInfo, setBoardInfo] = useState<Board[]>([])
     const [starredBoards, setStarredBoards] = useState<Board[]>([])
@@ -56,7 +58,7 @@ const BoardPage = () => {
 
     useEffect(() => {
         const getUserBoards = async () => {
-            setLoadMore(true)
+            // setLoadMore(true)
             setLoading(true)
             try {
                 const response = await axios.get(`/api/boards/getAllUserBoards?page=${boardPage}&limit=${boardLimit}`)
@@ -70,7 +72,7 @@ const BoardPage = () => {
                     description: errMsg,
                 })
             } finally {
-                setLoadMore(false)
+                // setLoadMore(false)
                 setLoading(false)
             }
         }
@@ -130,7 +132,7 @@ const BoardPage = () => {
         
     }, [])
 
-    const toggleStarredStatus = async (boardId: string, currentStarredStatus: boolean) => {
+    const toggleStarredStatus = async (boardId: string) => {
         try {
             const response = await axios.patch(`/api/boards/toggleBoardStarredStatus/${boardId}`)
             

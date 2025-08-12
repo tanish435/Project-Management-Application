@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { Separator } from './ui/separator'
 import { useForm } from 'react-hook-form'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
 import { z } from "zod"
 import { Input } from './ui/input'
 import axios, { AxiosError } from 'axios'
@@ -29,7 +29,7 @@ interface props {
     onChangeCollection: (collection: Collection) => void
 }
 
-const CreateCollectionTemplate = ({ board, boardCollections, collections, onCollectionCreated, onCollectionUpdated, onCollectionDeleted, onChangeCollection }: props) => {
+const CreateCollectionTemplate = ({ boardCollections, collections, onCollectionCreated, onCollectionUpdated, onCollectionDeleted, onChangeCollection }: props) => {
     const [collectionNameError, setCollectionNameError] = useState('')
     const [createCollectionActive, setCreateCollectionActive] = useState(collections.length === 0)
     const [creating, setCreating] = useState(false)

@@ -22,22 +22,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import {
   Camera,
   Loader2,
   Save,
   User,
   Mail,
-  Edit3,
   Check,
   X,
   Upload
@@ -51,7 +40,6 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   // Form states
   const [formData, setFormData] = useState({

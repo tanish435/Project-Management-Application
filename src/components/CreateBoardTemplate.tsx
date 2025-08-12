@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { Separator } from './ui/separator'
 import { useForm } from 'react-hook-form'
 import { createBoardSchema } from '@/schemas/boardSchema'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
 import { z } from "zod"
 import { Input } from './ui/input'
 import axios, { AxiosError } from 'axios'

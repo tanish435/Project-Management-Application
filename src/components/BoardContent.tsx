@@ -3,7 +3,7 @@ import { useMutation, useRoom, useStorage, useSelf, useOthers } from "@liveblock
 import BoardNavbar from "./BoardNavbar";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 import ListComponent from "./ListComponent";
-import { Lson, LiveList, LiveObject } from '@liveblocks/client';
+import { LiveList, LiveObject } from '@liveblocks/client';
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import axios, { AxiosError } from "axios";
@@ -11,7 +11,7 @@ import { ApiResponse } from "@/utils/ApiResponse";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import CreateListButton from "./CreateListButton";
-import { Board, Card, CardLson, List, ListLson, User, UserLson } from "@/types/interface";
+import { Board, CardLson, List, ListLson, User, UserLson } from "@/types/interface";
 
 const BoardContent = () => {
   const [boardData, setBoardData] = useState<Board | null>(null)

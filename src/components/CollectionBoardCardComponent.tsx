@@ -8,7 +8,6 @@
     import { ApiResponse } from '@/utils/ApiResponse'
     import { toast } from 'sonner'
     import { Badge } from './ui/badge'
-    import { cp } from 'fs'
 
     interface Collection {
         _id: string
@@ -29,7 +28,6 @@
     }
 
     const CollectionBoardCardComponent = ({ name, url, bgColor, _id, isStarred, collections, onCollectionCreated, onCollectionUpdated, onCollectionDeleted }: BoardCardProps) => {
-        const [collection, setCollection] = useState<Collection[]>(collections)
         const [boardCollections, setBoardCollections] = useState<Collection[]>(() =>
             collections.filter((coll) => coll.boards?.includes(_id))
         )

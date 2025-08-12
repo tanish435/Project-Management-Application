@@ -5,13 +5,11 @@ import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Loader2 } from "lucide-react"
-import { Label } from "@/components/ui/label"
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { signUpSchema } from '@/schemas/signUpSchema'
@@ -20,7 +18,7 @@ import { signIn } from 'next-auth/react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { useDebounceCallback } from 'usehooks-ts'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import Link from 'next/link'
 import axios, { AxiosError } from 'axios'
 import { ApiResponse } from '@/utils/ApiResponse'

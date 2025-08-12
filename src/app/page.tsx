@@ -1,7 +1,6 @@
 "use client"
 
 import React from "react"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Check, Grid, List, Users, Plus, NotebookPen, SquareKanban } from "lucide-react"
@@ -56,7 +55,6 @@ export default function Home() {
             transition={{ duration: 0.5 }}
             className="bg-gradient-to-br from-slate-800 to-slate-700 rounded-2xl p-4 shadow-2xl"
           >
-            {/* Mock board preview */}
             <div className="flex gap-4">
               <div className="w-64 space-y-3">
                 <div className="h-8 bg-slate-600 rounded" />

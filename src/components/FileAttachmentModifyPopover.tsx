@@ -2,7 +2,6 @@
 import React, { useState } from 'react'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
-import { Separator } from './ui/separator'
 import { ChevronLeft, X } from 'lucide-react'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { Label } from './ui/label'
@@ -20,7 +19,7 @@ interface Props {
 const FileAttachmentModifyPopover = ({ cardId, file, setAttachments }: Props) => {
     const [isSelectActive, setIsSelectActive] = useState(true)
     const [isEditActive, setIsEditActive] = useState(false)
-    const [isDeleteActive, setIsDeleteActive] = useState(false)
+    // const [isDeleteActive, setIsDeleteActive] = useState(false)
 
     const [newName, setNewName] = useState(file.name)
 
@@ -107,7 +106,7 @@ const FileAttachmentModifyPopover = ({ cardId, file, setAttachments }: Props) =>
                         className="flex items-center justify-start w-full rounded hover:bg-slate-700 p-2 text-sm cursor-pointer"
                         onClick={() => {
                             setIsSelectActive(false)
-                            setIsDeleteActive(true)
+                            // setIsDeleteActive(true)
                         }}
                     >
                         Delete
@@ -152,7 +151,7 @@ const FileAttachmentModifyPopover = ({ cardId, file, setAttachments }: Props) =>
                         <Button
                             variant="ghost"
                             onClick={() => {
-                                setIsDeleteActive(false)
+                                // setIsDeleteActive(false)
                                 setIsSelectActive(true)
                             }}
                             className="w-8 hover:bg-gray-700 h-auto"

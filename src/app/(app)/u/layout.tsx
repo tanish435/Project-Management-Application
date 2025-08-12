@@ -1,6 +1,5 @@
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import USidebar from "@/components/USidebar";
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";

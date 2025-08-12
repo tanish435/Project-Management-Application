@@ -1,5 +1,3 @@
-import { ApiResponse } from '@/utils/ApiResponse';
-import { resend } from '@/lib/resend';
 import nodemailer from 'nodemailer';
 import { render } from '@react-email/render';
 import { InvitationEmail } from '../../email/InviteEmail';

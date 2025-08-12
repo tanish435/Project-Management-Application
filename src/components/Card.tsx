@@ -5,7 +5,7 @@ import { ApiResponse } from '@/utils/ApiResponse';
 import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import ChangeCardMembers from './ChangeCardMembers';
-import { Ellipsis, List, Paperclip, Plus, SquareCheckBig, Text, Trash2, UserRound, UserRoundPlus, X } from 'lucide-react';
+import { Ellipsis, List, Paperclip, Plus, SquareCheckBig, Text, Trash2, UserRoundPlus, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 import { Textarea } from './ui/textarea';
@@ -40,7 +40,8 @@ interface props {
 }
 
 const Card = ({ cardInfo, boardMembers, cardMembers, setCardMembers, description, setDescription }: props) => {
-    const [slug, setSlug] = useState(cardInfo?.slug)
+    const slug = cardInfo?.slug
+    // const [slug, setSlug] = useState(cardInfo?.slug)
     const [cardData, setCardData] = useState<C | null>();
     const [isEditDescriptionActive, setIsEditDescriptionActive] = useState(false)
     const [attachments, setAttachments] = useState<Attachment[]>([])
@@ -54,9 +55,9 @@ const Card = ({ cardInfo, boardMembers, cardMembers, setCardMembers, description
     const [editedContent, setEditedContent] = useState('')
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
     const [commentToEdit, setCommentToEdit] = useState<Comment | null>(null);
-    const [cardName, setCardName] = useState(cardInfo.name);
+    // const [cardName, setCardName] = useState(cardInfo.name);
 
-    const [isCardLoading, setIsCardLoading] = useState<boolean>(false)
+    // const [isCardLoading, setIsCardLoading] = useState<boolean>(false)
 
     const [isAddCommentActive, setIsAddCommentActive] = useState(false)
 
@@ -328,7 +329,7 @@ const Card = ({ cardInfo, boardMembers, cardMembers, setCardMembers, description
     useEffect(() => {
         const fetchCardBySlug = async () => {
             try {
-                setIsCardLoading(true)
+                // setIsCardLoading(true)
                 const response = await axios.get(`/api/cards/getCardBySlug/${slug}`)
                 const card = response.data.data
                 setCardData(card);
@@ -345,9 +346,10 @@ const Card = ({ cardInfo, boardMembers, cardMembers, setCardMembers, description
                 toast.error('Failed to fetch card info', {
                     description: errMsg
                 })
-            } finally {
-                setIsCardLoading(false)
-            }
+            } 
+            // finally {
+                // setIsCardLoading(false)
+            // }
 
         }
 
