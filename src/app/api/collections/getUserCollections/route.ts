@@ -2,8 +2,7 @@ import dbConnect from "@/lib/dbConnect";
 import { ApiResponse } from "@/utils/ApiResponse";
 import { User, getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/options";
-import mongoose, { isValidObjectId } from "mongoose";
-import { ApiError } from "@/utils/ApiError";
+import mongoose from "mongoose";
 import CollectionModel from "@/models/Collection.model";
 
 export async function GET(req: Request) {

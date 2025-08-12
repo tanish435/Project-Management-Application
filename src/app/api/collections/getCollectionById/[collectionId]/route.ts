@@ -3,13 +3,12 @@ import dbConnect from "@/lib/dbConnect";
 import CollectionModel from "@/models/Collection.model";
 import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose, { isValidObjectId } from "mongoose";
-import { User, getServerSession } from "next-auth";
+import { getServerSession } from "next-auth";
 
-export async function GET(req: Request, { params }: { params: { collectionId: string } }) {
+export async function GET(req: Request, context: { params: Promise<{ collectionId: string }> }) {
     await dbConnect()
-    const collectionId = params.collectionId
+    const { collectionId } = await context.params
     const session = await getServerSession(authOptions)
-    const user: User = session?.user as User
 
     if (!session || !session.user) {
         const errResponse = new ApiResponse(401, null, "Not authenticated")

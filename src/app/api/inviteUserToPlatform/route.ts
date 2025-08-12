@@ -35,6 +35,7 @@ export async function POST(req: Request) {
             headers: { 'Content-Type': 'application/json' }
         })
     } catch (error) {
+        console.error("Error in invite user to platform route:", error);
         const errResponse = new ApiResponse(500, null, "Internal server error")
         return new Response(JSON.stringify(errResponse), {
             status: errResponse.statusCode,

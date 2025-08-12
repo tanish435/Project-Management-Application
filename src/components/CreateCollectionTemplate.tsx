@@ -76,7 +76,7 @@ const CreateCollectionTemplate = ({ boardCollections, collections, onCollectionC
             setName("")
         } catch (error) {
             const axiosError = error as AxiosError<ApiResponse>
-            let errorMsg = axiosError.response?.data.message
+            const errorMsg = axiosError.response?.data.message
             setCollectionNameError(errorMsg as string)
             toast("Error updating collection name", {
                 description: errorMsg
@@ -95,7 +95,7 @@ const CreateCollectionTemplate = ({ boardCollections, collections, onCollectionC
             }
         } catch (error) {
             const axiosError = error as AxiosError<ApiResponse>
-            let errorMsg = axiosError.response?.data.message
+            const errorMsg = axiosError.response?.data.message
             toast("Failed to delete collection", {
                 description: errorMsg
             })
@@ -120,7 +120,7 @@ const CreateCollectionTemplate = ({ boardCollections, collections, onCollectionC
             console.log(response)
         } catch (error) {
             const axiosError = error as AxiosError<ApiResponse>
-            let errorMsg = axiosError.response?.data.message
+            const errorMsg = axiosError.response?.data.message
             setCollectionNameError(errorMsg as string)
             toast("Error creating board", {
                 description: errorMsg

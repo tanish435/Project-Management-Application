@@ -71,10 +71,15 @@ ListSchema.pre("findOneAndDelete", async function (next) {
         await session.commitTransaction();
         session.endSession();
         next()
-    } catch (error: any) {
+    } catch (error: unknown) {
         await session.abortTransaction();
         session.endSession();
-        next(error);
+    
+        if (error instanceof Error) {
+            next(error as mongoose.CallbackError);
+        } else {
+            next(new Error(String(error)));
+        }
     }
 })
 

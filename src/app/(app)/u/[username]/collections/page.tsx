@@ -19,7 +19,7 @@ interface Collection {
     boards: string[]
 }
 
-const page = () => {
+const Page = () => {
     const boardPage = 1;
     const boardLimit = 10
     // const [boardPage, setBoardPage] = useState(1)
@@ -175,4 +175,4 @@ const page = () => {
     )
 }
 
-export default page
+export default Page

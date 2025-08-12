@@ -2,7 +2,6 @@ import dbConnect from "@/lib/dbConnect";
 import CollectionModel from "@/models/Collection.model";
 import { ApiError } from "@/utils/ApiError";
 import { ApiResponse } from "@/utils/ApiResponse";
-import { isValidObjectId } from "mongoose";
 import { User, getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/options";
 import UserModel from "@/models/User.model";

@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
   try {
     parsedBody = JSON.parse(body);
   } catch (error) {
+    console.error("Error in liveblocks-auth route:", error);
     return new NextResponse("Failed to parse authorization response", { status: 500 });
   }
 

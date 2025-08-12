@@ -12,9 +12,9 @@ const liveblocks = new Liveblocks({
 })
 
 // Updated API endpoint with better error handling
-export async function DELETE(req: Request, { params }: { params: { boardId: string, slug: string } }) {
+export async function DELETE(req: Request, context: { params: Promise<{ boardId: string, slug: string }> }) {
     await dbConnect()
-    const { boardId, slug } = params
+    const { boardId, slug } = await context.params
     const session = await getServerSession(authOptions)
     const user: User = session?.user as User;
 
@@ -92,9 +92,9 @@ export async function DELETE(req: Request, { params }: { params: { boardId: stri
             throw dbError
         }
 
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error deleting board: ", error);
-        const errResponse = new ApiResponse(500, null, `Internal Server Error: ${error.message}`)
+        const errResponse = new ApiResponse(500, null, `Internal Server Error: ${error}`)
         return new Response(JSON.stringify(errResponse), {
             status: errResponse.statusCode,
             headers: { 'Content-Type': 'application/json' }

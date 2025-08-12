@@ -27,7 +27,6 @@ import { toast } from 'sonner'
 import { ApiResponse } from '@/utils/ApiResponse'
 import Link from 'next/link'
 import { ChevronDown, Loader2 } from 'lucide-react'
-import { useTheme } from 'next-themes'
 import CreateBoardTemplate from './CreateBoardTemplate'
 import { Button } from './ui/button'
 

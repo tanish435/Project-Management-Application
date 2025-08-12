@@ -24,7 +24,7 @@ const verifySchema = z.object({
     code: z.string().min(6, 'Verification code must be 6 digits').max(6, 'Verification code must be 6 digits')
 })
 
-const page = () => {
+const Page = () => {
     const router = useRouter()
     const params = useParams<{ username: string }>()
     const [isMounted, setIsMounted] = useState(false)
@@ -214,7 +214,7 @@ const page = () => {
                             <>
                                 <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border my-6">
                                     <span className="relative z-10 bg-background px-2 text-muted-foreground">
-                                        Didn't receive the code?
+                                        Didn&apos;t receive the code?
                                     </span>
                                 </div>
 
@@ -253,4 +253,4 @@ const page = () => {
     )
 }
 
-export default page
+export default Page

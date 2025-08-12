@@ -12,11 +12,11 @@ import { getServerSession, User } from "next-auth";
 // if user does not exist, send a invite email to user to register on the platform
 // if the user exists, add the user to the board
 
-export async function PATCH(req: Request, { params }: { params: { boardId: string } }) {
+export async function PATCH(req: Request, context: { params: Promise<{ boardId: string }> }) {
     await dbConnect()
     const session = await getServerSession(authOptions)
     const user: User = session?.user as User
-    const { boardId } = params
+    const { boardId } = await context.params
 
     if (!session || !session.user) {
         const errResponse = new ApiResponse(401, null, "Not authenticated")

@@ -15,8 +15,8 @@ import { Comment } from '@/types/interface'
 interface CommentEditorProps {
   cardId: string
   onCancel: () => void
-  setComments: React.Dispatch<React.SetStateAction<any[]>>;
-  setIsAddCommentActive?: React.Dispatch<React.SetStateAction<any>>;
+  setComments: React.Dispatch<React.SetStateAction<Comment[]>>;
+  setIsAddCommentActive?: React.Dispatch<React.SetStateAction<boolean>>;
   isEditing?: boolean
   commentToEdit?: Comment | null
 }

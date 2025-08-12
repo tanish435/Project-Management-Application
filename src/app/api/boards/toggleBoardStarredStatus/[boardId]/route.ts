@@ -8,7 +8,7 @@ import { getServerSession, User } from "next-auth";
 
 export async function PATCH(
     req: Request,
-    { params }: { params: { boardId: string } }
+    context: { params: Promise<{ boardId: string }> }
 ) {
     await dbConnect();
     const session = await getServerSession(authOptions);
@@ -23,7 +23,7 @@ export async function PATCH(
     }
 
     try {
-        const { boardId } = params;
+        const { boardId } = await context.params;
         
         // Validate boardId
         if (!boardId || !mongoose.Types.ObjectId.isValid(boardId)) {

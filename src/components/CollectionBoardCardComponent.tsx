@@ -36,7 +36,6 @@
             try {
                 const response = await axios.patch(`/api/collections/addBoardToCollection/${collection._id}/${_id}`)
                 if (response?.data?.success) {
-                    const updatedCollection = response.data.data?.collection
 
                     setBoardCollections((prev) => prev.concat(collection))
                 }
@@ -56,7 +55,6 @@
             try {
                 const response = await axios.patch(`/api/collections/removeBoardFromCollection/${collection._id}/${_id}`)
                 if (response?.data?.success) {
-                    const updatedCollection = response.data.data.collection
                     setBoardCollections((prev) =>
                         prev?.filter((coll) => coll._id !== collection._id)
                     )

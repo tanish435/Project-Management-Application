@@ -16,7 +16,7 @@ import { Board, CardLson, List, ListLson, User, UserLson } from "@/types/interfa
 const BoardContent = () => {
   const [boardData, setBoardData] = useState<Board | null>(null)
   const [bgColor, setBgColor] = useState("")
-  const [admin, setAdmin] = useState<User[]>([])
+  // const [admin, setAdmin] = useState<User[]>([])
   const [members, setMembers] = useState<User[]>([])
   const [hasInitialised, setHasInitialised] = useState<boolean>(false)
   const [isBoardLoading, setIsBoardLoading] = useState<boolean>(false)
@@ -49,7 +49,7 @@ const BoardContent = () => {
   // Use lists from storage if available, otherwise fallback
   const displayLists = lists || fallbackLists;
 
-  const fetchBoardBySlug = async (forceRefresh = false) => {
+  const fetchBoardBySlug = async () => {
     try {
       setIsBoardLoading(true)
       const response = await axios.get(`/api/boards/getBoardBySlug/${params.slug}`)
@@ -108,7 +108,7 @@ const BoardContent = () => {
 
     setIsStorageSyncing(true)
     try {
-      const freshBoard = await fetchBoardBySlug(true)
+      const freshBoard = await fetchBoardBySlug()
       if (freshBoard) {
         await forceReinitializeStorage(freshBoard)
         toast.success('Board data synchronized with latest changes')
@@ -236,7 +236,7 @@ const BoardContent = () => {
   }, [boardData, isBoardLoading, initializeStorage, forceReinitializeStorage, room, hasInitialised, isFirstUser]);
 
   useEffect(() => {
-    setAdmin(boardData?.admin as User[])
+    // setAdmin(boardData?.admin as User[])
     setBgColor(boardData?.bgColor as string)
   }, [boardData])
 
@@ -249,13 +249,6 @@ const BoardContent = () => {
       }
 
       const liveLists = storage.get('lists') as LiveList<LiveObject<ListLson>>;
-
-      // Store original state for rollback
-      const originalState = {
-        sourceIndex: source.index,
-        destIndex: destination.index,
-        type: type
-      }
 
       try {
         if (type === 'list') {

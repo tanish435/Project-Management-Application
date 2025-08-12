@@ -5,9 +5,8 @@ import CardModel from "@/models/Card.model";
 import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
-import { z } from "zod";
 
-export async function POST(req: Request, { params }: { params: { cardId: string } }) {
+export async function POST(req: Request, context: { params: Promise<{ cardId: string }> }) {
     await dbConnect()
     const session = await getServerSession(authOptions);
     const user: User = session?.user as User
@@ -20,7 +19,7 @@ export async function POST(req: Request, { params }: { params: { cardId: string 
         });
     }
 
-    const { cardId } = params
+    const { cardId } = await context.params
     if (!mongoose.Types.ObjectId.isValid(cardId)) {
         const errResponse = new ApiResponse(400, null, "Invalid card ID");
         return new Response(JSON.stringify(errResponse), {
@@ -28,8 +27,6 @@ export async function POST(req: Request, { params }: { params: { cardId: string 
             headers: { "Content-Type": "application/json" },
         });
     }
-
-    const urlSchema = z.string().url({ message: 'Invalid url' })
 
     try {
         const { url, displayName } = await req.json()
@@ -40,8 +37,6 @@ export async function POST(req: Request, { params }: { params: { cardId: string 
                 headers: { "Content-Type": "application/json" },
             });
         }
-
-        const validatedUrl = urlSchema.parse(url)        
 
         const validUsers = await CardModel.aggregate([
             {
@@ -131,6 +126,7 @@ export async function POST(req: Request, { params }: { params: { cardId: string 
                 headers: { "Content-Type": "application/json" },
             });
         } catch (error) {
+            console.error("Error in attach link transaction:", error);
             await session.abortTransaction()
             await session.endSession()
 

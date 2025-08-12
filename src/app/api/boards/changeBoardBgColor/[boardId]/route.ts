@@ -3,11 +3,11 @@ import dbConnect from "@/lib/dbConnect";
 import BoardModel from "@/models/Board.model";
 import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
-import { getServerSession, User } from "next-auth";
+import { getServerSession } from "next-auth";
 
-export async function PATCH(req: Request, { params }: { params: { boardId: string } }) {
+export async function PATCH(req: Request, context: { params: Promise<{ boardId: string }> }) {
     await dbConnect()
-    const {boardId} = params;
+    const {boardId} = await context.params;
 
     const session = await getServerSession(authOptions)
 

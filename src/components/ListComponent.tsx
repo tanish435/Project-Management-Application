@@ -228,7 +228,7 @@ const ListComponent = ({ listInfo, boardMembers }: props) => {
                                         <AlertDialogHeader>
                                             <AlertDialogTitle>Delete List</AlertDialogTitle>
                                             <AlertDialogDescription>
-                                                Are you sure you want to delete the list "{listInfo.name}"?
+                                                Are you sure you want to delete the list &quot;{listInfo.name}&quot;?
                                                 This action will permanently delete the list and all its cards.
                                                 This action cannot be undone.
                                             </AlertDialogDescription>
@@ -282,7 +282,7 @@ const ListComponent = ({ listInfo, boardMembers }: props) => {
                                         className='flex flex-col gap-2'
                                     >
                                         <span className='h-0.5'></span>
-                                        {listInfo.cards.map((card: any, index: number) => (
+                                        {listInfo.cards.map((card) => (
                                             <ListCard
                                                 cardInfo={card}
                                                 boardMembers={boardMembers}

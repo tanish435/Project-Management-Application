@@ -5,9 +5,9 @@ import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
 
-export async function GET(req: Request, {params}: {params: {boardId: string}}) { 
+export async function GET(req: Request, context: { params: Promise<{ boardId: string }> }) { 
     await dbConnect();
-    const {boardId} = params
+    const {boardId} = await context.params
     const session = await getServerSession(authOptions);
     const user: User = session?.user as User
 
@@ -80,6 +80,7 @@ export async function GET(req: Request, {params}: {params: {boardId: string}}) {
             headers: { 'Content-Type': 'application/json' }
         })
     } catch (error) {
+        console.error("Error in get board members route:", error);
         const errResponse = new ApiResponse(500, null, "Internal server error")
         return new Response(JSON.stringify(errResponse), {
             status: errResponse.statusCode,

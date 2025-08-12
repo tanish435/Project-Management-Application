@@ -6,7 +6,7 @@ import ListModel from "@/models/List.model";
 import mongoose from "mongoose";
 import BoardModel from "@/models/Board.model";
 
-export async function GET(req: Request, { params }: { params: { listId: string, boardId: string } }) {
+export async function GET(req: Request, context: { params: Promise<{ listId: string, boardId: string }> }) {
     await dbConnect()
     const session = await getServerSession(authOptions)
     const user: User = session?.user as User
@@ -19,7 +19,7 @@ export async function GET(req: Request, { params }: { params: { listId: string, 
         });
     }
 
-    const { listId, boardId } = params
+    const { listId, boardId } = await context.params
 
     if (!mongoose.Types.ObjectId.isValid(listId)) {
         const errResponse = new ApiResponse(400, null, "Invalid list ID");

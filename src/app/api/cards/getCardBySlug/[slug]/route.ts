@@ -5,7 +5,7 @@ import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
 
-export async function GET(req: Request, { params }: { params: { slug: string } }) {
+export async function GET(req: Request, context: { params: Promise<{ slug: string }> }) {
     await dbConnect()
     const session = await getServerSession(authOptions);
     const user: User = session?.user as User
@@ -18,7 +18,7 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
         });
     }
 
-    const { slug } = params
+    const { slug } = await context.params
     if (!slug || slug.length !== 6) {
         const errResponse = new ApiResponse(400, null, "Invalid card slug");
         return new Response(JSON.stringify(errResponse), {

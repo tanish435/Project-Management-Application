@@ -1,6 +1,5 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
-import BoardModel from "@/models/Board.model";
 import UserModel from "@/models/User.model";
 import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";

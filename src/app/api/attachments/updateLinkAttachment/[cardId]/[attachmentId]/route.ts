@@ -7,7 +7,7 @@ import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
 import { z } from "zod";
 
-export async function PATCH(req: Request, { params }: { params: { cardId: string, attachmentId: string } }) {
+export async function PATCH(req: Request, context: { params: Promise<{ cardId: string, attachmentId: string }> }) {
     await dbConnect()
     const session = await getServerSession(authOptions);
     const user: User = session?.user as User
@@ -20,7 +20,7 @@ export async function PATCH(req: Request, { params }: { params: { cardId: string
         });
     }
 
-    const { cardId, attachmentId } = params
+    const { cardId, attachmentId } = await context.params
     if (!mongoose.Types.ObjectId.isValid(cardId)) {
         const errResponse = new ApiResponse(400, null, "Invalid card ID");
         return new Response(JSON.stringify(errResponse), {

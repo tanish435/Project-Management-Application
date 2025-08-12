@@ -6,7 +6,7 @@ import ChecklistModel from "@/models/Checklist.model";
 import mongoose from "mongoose";
 import CardModel from "@/models/Card.model";
 
-export async function POST(req: Request, { params }: { params: { cardId: string } }) {
+export async function POST(req: Request, context: { params: Promise<{ cardId: string }> }) {
     await dbConnect()
     const session = await getServerSession(authOptions);
     const user: User = session?.user as User
@@ -19,7 +19,7 @@ export async function POST(req: Request, { params }: { params: { cardId: string 
         });
     }
 
-    const { cardId } = params
+    const { cardId } = await context.params
     if (!mongoose.Types.ObjectId.isValid(cardId)) {
         const errResponse = new ApiResponse(400, null, "Invalid card ID");
         return new Response(JSON.stringify(errResponse), {
@@ -136,6 +136,7 @@ export async function POST(req: Request, { params }: { params: { cardId: string 
                 headers: { "Content-Type": "application/json" },
             });
         } catch (error) {
+            console.error("Error in create checklist transaction:", error);
             await session.abortTransaction()
             session.endSession()
 

@@ -28,7 +28,7 @@ interface props {
 
 // Make this and its child component stable
 
-const ListCard = ({ cardInfo, boardMembers, isDragging = false }: props) => {
+const ListCard = ({ cardInfo, boardMembers }: props) => {
     const dueDate = cardInfo?.dueDate
     // const [dueDate, setDueDate] = useState(cardInfo.dueDate)
     const [cardMembers, setCardMembers] = useState<User[]>([])

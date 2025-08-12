@@ -97,6 +97,7 @@ export async function POST(req: Request) {
                 headers: { "Content-Type": "application/json" },
             });
         } catch (error) {
+            console.error("Error in create list transaction:", error);
             await session.abortTransaction();
             session.endSession()
 

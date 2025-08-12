@@ -1,4 +1,4 @@
-import { NextAuthOptions, Profile } from "next-auth";
+import { NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from 'bcryptjs'
 import UserModel from "@/models/User.model";
@@ -15,7 +15,14 @@ export const authOptions: NextAuthOptions = {
                 identifier: { label: "Username", type: "text" },
                 password: { label: "Password", type: "password" }
             },
-            async authorize(credentials: any): Promise<any> {
+            async authorize(
+                credentials: Record<"identifier" | "password", string> | undefined,
+                // req: Pick<RequestInternal, "body" | "query" | "headers" | "method">
+            ): Promise<User | null> {
+                if (!credentials?.identifier || !credentials?.password) {
+                    throw new ApiError(400, "Missing credentials");
+                }
+
                 await dbConnect()
                 try {
                     const user = await UserModel.findOne({
@@ -39,17 +46,19 @@ export const authOptions: NextAuthOptions = {
                     }
 
                     return {
-                        _id: user._id,
+                        id: user._id as string,
+                        _id: user._id as string,
                         isVerified: user.isVerified,
                         username: user.username,
                         name: user.fullName,
                         email: user.email,
                         image: user.avatar,
+                        initials: user.initials,
+                        sub: user.sub || user._id as string 
                     };
 
-                } catch (error: any) {
-                    console.log(error);
-
+                } catch (error: unknown) {
+                    console.error(error);
                     throw new ApiError(500, "Error signing in the user via Credentials")
                 }
             }

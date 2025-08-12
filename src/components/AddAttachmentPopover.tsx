@@ -20,7 +20,7 @@ interface props {
   trigger?: React.ReactNode; // Optional custom trigger
 }
 
-const AddAttachmentPopover = ({ cardId, attachments, setAttachments, trigger }: props) => {
+const AddAttachmentPopover = ({ cardId, setAttachments, trigger }: props) => {
   const form = useForm<z.infer<typeof urlSchema>>({
     resolver: zodResolver(urlSchema),
     defaultValues: {

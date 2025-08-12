@@ -5,7 +5,7 @@ import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
 
-export async function GET(req: Request, {params}: {params: {cardId: string}}) {
+export async function GET(req: Request, context: { params: Promise<{ cardId: string }> }) {
     await dbConnect()
     const session = await getServerSession(authOptions);
     const user: User = session?.user as User
@@ -18,7 +18,7 @@ export async function GET(req: Request, {params}: {params: {cardId: string}}) {
         });
     }
 
-    const { cardId } = params
+    const { cardId } = await context.params
 
     try {
         const validUsers = await CardModel.aggregate([

@@ -4,12 +4,11 @@ import { ApiError } from "@/utils/ApiError";
 import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose, { isValidObjectId } from "mongoose";
 import { authOptions } from "../../auth/[...nextauth]/options";
-import { User, getServerSession } from "next-auth";
+import { getServerSession } from "next-auth";
 
 export async function PATCH(req: Request) {
     await dbConnect()
     const session = await getServerSession(authOptions)
-    const user: User = session?.user as User
 
     if(!session || !session.user) {
         const errResponse = new ApiResponse(401, null, "Not authenticated")
@@ -60,7 +59,7 @@ export async function PATCH(req: Request) {
             headers: { 'Content-Type': 'application/json' }
         })
     } catch (error) {
-        console.log("Failed to update user profile");
+        console.log("Failed to update user profile", error);
         const errResponse = new ApiResponse(500, null, "Internal Server Error")
         return new Response(JSON.stringify(errResponse), {
             status: errResponse.statusCode,

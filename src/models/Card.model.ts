@@ -1,4 +1,4 @@
-import mongoose, {Schema, Document, Types, Model} from "mongoose";
+import mongoose, { Schema, Document, Types, Model } from "mongoose";
 import AttachmentModel from "./Attachment.model";
 import ChecklistModel from "./Checklist.model";
 import TodoModel from "./Todo.model";
@@ -20,7 +20,7 @@ export interface Card extends Document {
     attachments: Types.ObjectId[];
 }
 
-const CardSchema: Schema<Card> = new Schema ({
+const CardSchema: Schema<Card> = new Schema({
     name: {
         type: String,
         required: [true, 'Card name is required']
@@ -31,7 +31,7 @@ const CardSchema: Schema<Card> = new Schema ({
     position: {
         type: Number,
     },
-    slug:{
+    slug: {
         type: String,
         required: [true, "Card slug is required"]
     },
@@ -63,7 +63,7 @@ const CardSchema: Schema<Card> = new Schema ({
         type: Schema.Types.ObjectId,
         ref: 'Attachment'
     }]
-}, {timestamps: true})
+}, { timestamps: true })
 
 CardSchema.pre('findOneAndDelete', async function (next) {
     const cardId = this.getQuery()._id;
@@ -72,14 +72,14 @@ CardSchema.pre('findOneAndDelete', async function (next) {
     session.startTransaction();
 
     try {
-        const attachments = await AttachmentModel.find({card: cardId}).session(session)
+        const attachments = await AttachmentModel.find({ card: cardId }).session(session)
 
-        for(const attachement of attachments) {
-            if(!attachement.isWebsiteLink) {
+        for (const attachement of attachments) {
+            if (!attachement.isWebsiteLink) {
                 await deleteFromCloudinary(attachement.url)
             }
         }
-        
+
         await AttachmentModel.deleteMany({ card: cardId }).session(session);
         await CommentModel.deleteMany({ card: cardId }).session(session);
 
@@ -98,10 +98,15 @@ CardSchema.pre('findOneAndDelete', async function (next) {
         await session.commitTransaction();
         session.endSession();
         next();
-    } catch (error: any) {
+    } catch (error: unknown) {
         await session.abortTransaction();
         session.endSession();
-        next(error);
+
+        if (error instanceof Error) {
+            next(error as mongoose.CallbackError);
+        } else {
+            next(new Error(String(error)));
+        }
     }
 });
 

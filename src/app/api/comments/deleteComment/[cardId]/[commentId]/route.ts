@@ -7,7 +7,7 @@ import mongoose from "mongoose";
 import { User } from "next-auth";
 import { getServerSession } from "next-auth";
 
-export async function DELETE(req: Request, { params }: { params: { cardId: string, commentId: string } }) {
+export async function DELETE(req: Request, context: { params: Promise<{ cardId: string, commentId: string }> }) {
     await dbConnect()
     const session = await getServerSession(authOptions);
     const user: User = session?.user as User
@@ -20,7 +20,7 @@ export async function DELETE(req: Request, { params }: { params: { cardId: strin
         });
     }
 
-    const { commentId, cardId } = params
+    const { commentId, cardId } = await context.params
     if (!mongoose.Types.ObjectId.isValid(commentId)) {
         const errResponse = new ApiResponse(400, null, "Invalid comment ID");
         return new Response(JSON.stringify(errResponse), {

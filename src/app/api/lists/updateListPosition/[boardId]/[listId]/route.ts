@@ -123,7 +123,7 @@ import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
 
-export async function PATCH(req: Request, { params }: { params: { listId: string, boardId: string } }) {
+export async function PATCH(req: Request, context: { params: Promise<{ listId: string, boardId: string }> }) {
     await dbConnect();
     const session = await getServerSession(authOptions);
     const user: User = session?.user as User;
@@ -135,7 +135,7 @@ export async function PATCH(req: Request, { params }: { params: { listId: string
         });
     }
 
-    const { listId, boardId } = params;
+    const { listId, boardId } = await context.params;
     const { searchParams } = new URL(req.url);
     const newPos = Number(searchParams.get("pos"));
 

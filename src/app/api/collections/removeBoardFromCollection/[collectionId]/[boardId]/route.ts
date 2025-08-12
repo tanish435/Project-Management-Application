@@ -1,15 +1,14 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
 import CollectionModel from "@/models/Collection.model";
-import UserModel from "@/models/User.model";
 import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
 
-export async function PATCH(req: Request, { params }: { params: { collectionId: string; boardId: string } }) {
+export async function PATCH(req: Request, context: { params: Promise<{ collectionId: string, boardId: string }> }) {
     await dbConnect()
     
-    const { collectionId, boardId } = params
+    const { collectionId, boardId } = await context.params
     const session = await getServerSession(authOptions)
     const user: User = session?.user as User;
 
@@ -56,6 +55,7 @@ export async function PATCH(req: Request, { params }: { params: { collectionId: 
             headers: { 'Content-Type': 'application/json' },
         });
     } catch (error) {
+        console.error("Error in remove board from collection route:", error);
         const errResponse = new ApiResponse(500, null, "Internal server error")
         return new Response(JSON.stringify(errResponse), {
             status: errResponse.statusCode,

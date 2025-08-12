@@ -1,12 +1,11 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
 import CardModel from "@/models/Card.model";
-import UserModel from "@/models/User.model";
 import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
 
-export async function GET(req: Request, { params }: { params: { cardId: string } }) {
+export async function GET(req: Request, context: { params: Promise<{ cardId: string }> }) {
     await dbConnect()
     const session = await getServerSession(authOptions);
     const user: User = session?.user as User
@@ -19,7 +18,7 @@ export async function GET(req: Request, { params }: { params: { cardId: string }
         });
     }
 
-    const { cardId } = params
+    const { cardId } = await context.params
     if (!mongoose.Types.ObjectId.isValid(cardId)) {
         const errResponse = new ApiResponse(400, null, "Invalid list ID");
         return new Response(JSON.stringify(errResponse), {

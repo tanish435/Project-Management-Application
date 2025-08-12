@@ -7,7 +7,7 @@ import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
 
-export async function POST(req: Request, { params }: { params: { cardId: string, checklistId: string } }) {
+export async function POST(req: Request, context: { params: Promise<{ cardId: string, checklistId: string}> }) {
     await dbConnect()
     const session = await getServerSession(authOptions);
     const user: User = session?.user as User
@@ -20,7 +20,7 @@ export async function POST(req: Request, { params }: { params: { cardId: string,
         });
     }
 
-    const { cardId, checklistId } = params
+    const { cardId, checklistId } = await context.params
     if (!mongoose.Types.ObjectId.isValid(cardId)) {
         const errResponse = new ApiResponse(400, null, "Invalid card ID");
         return new Response(JSON.stringify(errResponse), {
@@ -149,10 +149,11 @@ export async function POST(req: Request, { params }: { params: { cardId: string,
                 headers: { "Content-Type": "application/json" },
             });
         } catch (error) {
+            console.error("Error in create todo transaction:", error);
             await session.abortTransaction()
             session.endSession()
 
-            const errResponse = new ApiResponse(500, null, "Faield to create todo");
+            const errResponse = new ApiResponse(500, null, "Failed to create todo");
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,
                 headers: { "Content-Type": "application/json" },

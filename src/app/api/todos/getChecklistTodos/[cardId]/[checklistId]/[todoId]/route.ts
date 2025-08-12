@@ -6,7 +6,7 @@ import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
 
-export async function GET(req: Request, { params }: { params: { cardId: string, checklistId: string, todoId: string } }) {
+export async function GET(req: Request, context: { params: Promise<{ cardId: string, checklistId: string, todoId: string }> }) {
     await dbConnect()
     const session = await getServerSession(authOptions);
     const user: User = session?.user as User
@@ -19,7 +19,7 @@ export async function GET(req: Request, { params }: { params: { cardId: string, 
         });
     }
 
-    const { cardId, todoId, checklistId } = params
+    const { cardId, todoId, checklistId } = await context.params
     if (!mongoose.Types.ObjectId.isValid(cardId)) {
         const errResponse = new ApiResponse(400, null, "Invalid card ID");
         return new Response(JSON.stringify(errResponse), {

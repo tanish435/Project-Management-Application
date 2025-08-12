@@ -104,7 +104,7 @@ const BoardSidebar = () => {
                     const response = await axios.get('/api/boards/getStarredBoards');
                     setStarredBoards(response.data.data.boards);
                 } catch (error) {
-                    console.log("Error refreshing starred boards after external toggle");
+                    console.log("Error refreshing starred boards after external toggle", error);
                 }
             } else {
                 setStarredBoards(prev => prev.filter(board => board._id !== boardId));
@@ -196,7 +196,7 @@ const BoardSidebar = () => {
         <div className="">
             <Sidebar className='h-full top-16 overflow-y-auto border-r bg-slate-800'>
                 <SidebarHeader className='px-3 mt-2 flex justify-center items-center'>
-                    <div className='w-full'>{userData?.user.name}'s Workspace</div>
+                    <div className='w-full'>{userData?.user.name}&apos;s Workspace</div>
                     <Separator className='bg-gray-400'/>
                 </SidebarHeader>
                 <SidebarContent>

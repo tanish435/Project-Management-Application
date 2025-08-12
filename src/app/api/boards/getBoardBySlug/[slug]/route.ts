@@ -4,11 +4,11 @@ import BoardModel from "@/models/Board.model";
 import { ApiResponse } from "@/utils/ApiResponse";
 import { getServerSession, User } from "next-auth";
 
-export async function GET(req: Request, { params }: { params: { slug: string } }) {
+export async function GET(req: Request, context: { params: Promise<{ slug: string }> }) {
     await dbConnect();
     const session = await getServerSession(authOptions);
     const user = session?.user as User;
-    const { slug } = params;
+    const { slug } = await context.params;
 
     if (!session || !session.user) {
         const errResponse = new ApiResponse(401, null, "Not authenticated");

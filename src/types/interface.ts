@@ -122,5 +122,5 @@ export interface ListLson {
   updatedAt: string;
   createdBy: LiveList<LiveObject<UserLson>>;
   cards: LiveList<LiveObject<CardLson>>;
-  [key: string]: any;
+  [key: string]: Lson;
 }

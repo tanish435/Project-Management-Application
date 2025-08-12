@@ -7,7 +7,7 @@ import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
 
-export async function DELETE(req: Request, { params }: { params: { cardId: string, checklistId: string, todoId: string } }) {
+export async function DELETE(req: Request, context: { params: Promise<{ cardId: string, checklistId: string, todoId: string }> }) {
     await dbConnect()
     const session = await getServerSession(authOptions);
     const user: User = session?.user as User
@@ -20,7 +20,7 @@ export async function DELETE(req: Request, { params }: { params: { cardId: strin
         });
     }
 
-    const { cardId, todoId, checklistId } = params
+    const { cardId, todoId, checklistId } = await context.params
     if (!mongoose.Types.ObjectId.isValid(cardId)) {
         const errResponse = new ApiResponse(400, null, "Invalid card ID");
         return new Response(JSON.stringify(errResponse), {
@@ -136,7 +136,15 @@ export async function DELETE(req: Request, { params }: { params: { cardId: strin
                 headers: { 'Content-Type': 'application/json' }
             })
         } catch (error) {
-            
+            console.error("Error in delete todo transaction:", error);
+            await session.abortTransaction()
+            session.endSession()
+
+            const errResponse = new ApiResponse(500, null, "Faield to delete todo");
+            return new Response(JSON.stringify(errResponse), {
+                status: errResponse.statusCode,
+                headers: { "Content-Type": "application/json" },
+            });
         }
     } catch (error) {
         console.log("Error deleting todo:", error);

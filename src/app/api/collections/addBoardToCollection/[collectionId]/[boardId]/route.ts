@@ -6,9 +6,9 @@ import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { User, getServerSession } from "next-auth";
 
-export async function PATCH(req: Request, { params }: { params: { collectionId: string; boardId: string } }) {
+export async function PATCH(req: Request, context: { params: Promise<{ collectionId: string, boardId: string }> }) {
     await dbConnect()
-    const { collectionId, boardId } = params
+    const { collectionId, boardId } = await context.params
     const session = await getServerSession(authOptions)
     const user: User = session?.user as User;
 

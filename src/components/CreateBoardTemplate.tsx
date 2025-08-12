@@ -59,7 +59,7 @@ const CreateBoardTemplate = ({ onBoardCreated }: CreateBoardTemplateProps) => {
             toast.success("Board created successfully")
         } catch (error) {
             const axiosError = error as AxiosError<ApiResponse>
-            let errorMsg = axiosError.response?.data.message
+            const errorMsg = axiosError.response?.data.message
             setBoardNameError(errorMsg as string)
             toast("Error creating board", {
                 description: errorMsg

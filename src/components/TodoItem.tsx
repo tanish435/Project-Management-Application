@@ -7,7 +7,7 @@ import ChangeTodoMembers from "./ChangeTodoMembers";
 import { Trash2 } from "lucide-react";
 import axios, { AxiosError } from "axios";
 import { toast } from "sonner";
-import { Todo, User } from "@/types/interface";
+import { Checklist, Todo, User } from "@/types/interface";
 
 interface ApiResponse {
   success: boolean;
@@ -21,7 +21,7 @@ interface Props {
   checklistId: string;
   cardId: string;
   cardMembers: User[];
-  setChecklists: React.Dispatch<React.SetStateAction<any[]>>;
+  setChecklists: React.Dispatch<React.SetStateAction<Checklist[]>>;
 }
 
 export default function TodoItem({

@@ -19,7 +19,7 @@ import { useRouter } from 'next/navigation'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import Link from 'next/link'
 
-const page = () => {
+const Page = () => {
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
     setMounted(true)
@@ -117,7 +117,7 @@ const page = () => {
 
           <div className='my-3'>
             <p>
-              Don't have an account? <Link href={'/sign-up'} className='text-blue-600 underline'>
+              Don&apos;t have an account? <Link href={'/sign-up'} className='text-blue-600 underline'>
                 Sign up
               </Link>
 
@@ -155,4 +155,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

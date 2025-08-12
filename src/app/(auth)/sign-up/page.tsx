@@ -23,7 +23,7 @@ import Link from 'next/link'
 import axios, { AxiosError } from 'axios'
 import { ApiResponse } from '@/utils/ApiResponse'
 
-const page = () => {
+const Page = () => {
     const router = useRouter()
     const [isMounted, setIsMounted] = useState(false)
     const [username, setUsername] = useState('')
@@ -82,7 +82,7 @@ const page = () => {
             router.replace(`/verify/${username}`)
         } catch (error) {
             const axiosError = error as AxiosError<ApiResponse>
-            let errorMsg = axiosError.response?.data.message
+            const errorMsg = axiosError.response?.data.message
             toast("Error signing up the user", {
                 description: errorMsg
             })
@@ -224,4 +224,4 @@ const page = () => {
     )
 }
 
-export default page
+export default Page

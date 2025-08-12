@@ -24,7 +24,7 @@ import { todoSchema } from '@/schemas/todoSchema';
 import { Checkbox } from './ui/checkbox';
 import ChangeTodoMembers from './ChangeTodoMembers';
 import { Progress } from './ui/progress';
-import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
+import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
 import { PopoverClose } from '@radix-ui/react-popover';
 import CommentEditor from './CommentEditor';
 import { Attachment, Card as C, Checklist, Todo, User, Comment } from '@/types/interface';
@@ -221,7 +221,7 @@ const Card = ({ cardInfo, boardMembers, cardMembers, setCardMembers, description
         }
     }
 
-    const onDragEnd = async (result: any) => {
+    const onDragEnd = async (result: DropResult) => {
         const { destination, source, type, draggableId } = result;
 
         if (!destination) return;

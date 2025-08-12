@@ -7,7 +7,7 @@ import { deleteFromCloudinary } from "@/utils/cloudinary";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
 
-export async function DELETE(req: Request, { params }: { params: { cardId: string, attachmentId: string } }) {
+export async function DELETE(req: Request, context: { params: Promise<{ cardId: string, attachmentId: string }> }) {
     await dbConnect()
     const session = await getServerSession(authOptions);
     const user: User = session?.user as User
@@ -20,7 +20,7 @@ export async function DELETE(req: Request, { params }: { params: { cardId: strin
         });
     }
 
-    const { cardId, attachmentId } = params
+    const { cardId, attachmentId } = await context.params
     if (!mongoose.Types.ObjectId.isValid(cardId)) {
         const errResponse = new ApiResponse(400, null, "Invalid card ID");
         return new Response(JSON.stringify(errResponse), {
@@ -102,7 +102,7 @@ export async function DELETE(req: Request, { params }: { params: { cardId: strin
             }
 
             if (!attachment.isWebsiteLink) {
-                const deleteFile = await deleteFromCloudinary(attachment.url).catch(async (error) => {
+                await deleteFromCloudinary(attachment.url).catch(async (error) => {
                     await session.abortTransaction();
                     session.endSession();
                     console.log("Error deleting from Cloudinary:", error);

@@ -1,12 +1,11 @@
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/models/User.model";
-import { ApiError } from "@/utils/ApiError";
 import { ApiResponse } from "@/utils/ApiResponse";
-import mongoose, { isValidObjectId } from "mongoose";
+import mongoose from "mongoose";
 import { User, getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/options";
 
-export async function GET(req: Request) {
+export async function GET() {
     await dbConnect()
     const session = await getServerSession(authOptions)
     const sessionUser: User = session?.user as User

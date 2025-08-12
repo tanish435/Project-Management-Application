@@ -6,10 +6,10 @@ import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
 
-export async function PATCH(req: Request, { params }: { params: { cardId: string, listId: string } }) {
-    await dbConnect()
+export async function PATCH(req: Request, context: { params: Promise<{ cardId: string, listId: string }> }) {
+    await dbConnect();
     const session = await getServerSession(authOptions);
-    const user: User = session?.user as User
+    const user: User = session?.user as User;
 
     if (!session || !session.user) {
         const errResponse = new ApiResponse(401, null, "Not authenticated");
@@ -19,16 +19,10 @@ export async function PATCH(req: Request, { params }: { params: { cardId: string
         });
     }
 
-    const { cardId, listId } = params
-    if (!mongoose.Types.ObjectId.isValid(cardId)) {
-        const errResponse = new ApiResponse(400, null, "Invalid list ID");
-        return new Response(JSON.stringify(errResponse), {
-            status: errResponse.statusCode,
-            headers: { "Content-Type": "application/json" },
-        });
-    }
-    if (!mongoose.Types.ObjectId.isValid(listId)) {
-        const errResponse = new ApiResponse(400, null, "Invalid list ID");
+    const { cardId, listId } = await context.params;
+    
+    if (!mongoose.Types.ObjectId.isValid(cardId) || !mongoose.Types.ObjectId.isValid(listId)) {
+        const errResponse = new ApiResponse(400, null, "Invalid ID(s)");
         return new Response(JSON.stringify(errResponse), {
             status: errResponse.statusCode,
             headers: { "Content-Type": "application/json" },
@@ -36,9 +30,10 @@ export async function PATCH(req: Request, { params }: { params: { cardId: string
     }
 
     try {
-        const { position } = await req.json()
-        const pos = Number(position)
-        if (isNaN(pos) || pos < 0) {
+        const { position } = await req.json();
+        const newPos = Number(position);
+        
+        if (isNaN(newPos) || newPos < 0) {
             const errResponse = new ApiResponse(400, null, "Invalid position index");
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,
@@ -46,10 +41,9 @@ export async function PATCH(req: Request, { params }: { params: { cardId: string
             });
         }
 
+        // Check authorization first
         const validUsers = await CardModel.aggregate([
-            {
-                $match: { _id: new mongoose.Types.ObjectId(cardId) }
-            },
+            { $match: { _id: new mongoose.Types.ObjectId(cardId) } },
             {
                 $lookup: {
                     from: "lists",
@@ -63,21 +57,15 @@ export async function PATCH(req: Request, { params }: { params: { cardId: string
                                 localField: "board",
                                 foreignField: "_id",
                                 as: "board",
-                                pipeline: [
-                                    {
-                                        $project: {
-                                            members: 1,
-                                        }
-                                    }
-                                ]
+                                pipeline: [{ $project: { members: 1 } }]
                             }
                         }
                     ]
                 }
             }
-        ])
+        ]);
 
-        if (!validUsers.length || !validUsers[0]?.listInfo.length) {
+        if (!validUsers.length || !validUsers[0]?.listInfo?.length) {
             const errResponse = new ApiResponse(404, null, "Card or associated data not found");
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,
@@ -85,130 +73,160 @@ export async function PATCH(req: Request, { params }: { params: { cardId: string
             });
         }
 
-        const authorisedUsers = validUsers[0]?.listInfo[0]?.board[0]?.members || []
-        if (!authorisedUsers.some((memberId: mongoose.Types.ObjectId) => memberId.equals(user._id))) {
-            const errResponse = new ApiResponse(400, null, "You are not authorised to view this card");
+        const authorisedUsers = validUsers[0]?.listInfo[0]?.board[0]?.members || [];
+        if (!authorisedUsers.some((memberId: mongoose.Types.ObjectId) => 
+            memberId.toString() === user._id.toString())) {
+            const errResponse = new ApiResponse(403, null, "You are not authorized to move this card");
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,
                 headers: { "Content-Type": "application/json" },
             });
         }
 
-        const session = await mongoose.startSession()
-        session.startTransaction()
-
+        // Start a session for the transaction
+        const dbSession = await mongoose.startSession();
+        
         try {
-            const card = await CardModel.findById(cardId).session(session)
-            if (!card) {
-                await session.abortTransaction()
-                await session.endSession()
+            // Use withTransaction to ensure proper cleanup if transaction fails
+            await dbSession.withTransaction(async () => {
+                // Get the card we want to move
+                const card = await CardModel.findById(cardId).session(dbSession);
+                
+                if (!card) {
+                    throw new Error("Card not found");
+                }
 
-                const errResponse = new ApiResponse(404, null, "Card not found");
+                const isSameList = card.list.toString() === listId;
+                const currentPos = card.position;
+                
+                if (isSameList) {
+                    // Count total cards in the list to check bounds
+                    const totalCards = await CardModel.countDocuments({ list: card.list }).session(dbSession);
+                    
+                    if (newPos >= totalCards) {
+                        throw new Error(`Position should be less than ${totalCards}`);
+                    }
+                    
+                    // Skip if already in correct position
+                    if (currentPos === newPos) {
+                        return;
+                    }
+                    
+                    // Update positions of affected cards
+                    if (currentPos < newPos) {
+                        // Moving forward: decrease position of cards between old and new position
+                        await CardModel.updateMany(
+                            {
+                                list: card.list,
+                                position: { $gt: currentPos, $lte: newPos }
+                            },
+                            { $inc: { position: -1 } },
+                            { session: dbSession }
+                        );
+                    } else {
+                        // Moving backward: increase position of cards between new and old position
+                        await CardModel.updateMany(
+                            {
+                                list: card.list,
+                                position: { $gte: newPos, $lt: currentPos }
+                            },
+                            { $inc: { position: 1 } },
+                            { session: dbSession }
+                        );
+                    }
+                    
+                    // Update the card's position
+                    await CardModel.updateOne(
+                        { _id: cardId },
+                        { $set: { position: newPos } },
+                        { session: dbSession }
+                    );
+                    
+                } else {
+                    // Moving between lists - more complex case
+                    
+                    // 1. Get count of cards in target list
+                    const targetListCardCount = await CardModel.countDocuments({ list: listId }).session(dbSession);
+                    
+                    if (newPos > targetListCardCount) {
+                        throw new Error(`Position should be less than or equal to ${targetListCardCount}`);
+                    }
+                    
+                    // 2. Update positions in source list (decrease position of cards after the moved card)
+                    await CardModel.updateMany(
+                        {
+                            list: card.list,
+                            position: { $gt: currentPos }
+                        },
+                        { $inc: { position: -1 } },
+                        { session: dbSession }
+                    );
+                    
+                    // 3. Update positions in target list (increase position to make room)
+                    await CardModel.updateMany(
+                        {
+                            list: listId,
+                            position: { $gte: newPos }
+                        },
+                        { $inc: { position: 1 } },
+                        { session: dbSession }
+                    );
+                    
+                    // 4. Update the list references
+                    await ListModel.findByIdAndUpdate(
+                        listId,
+                        { $addToSet: { cards: cardId } },
+                        { session: dbSession }
+                    );
+                    
+                    await ListModel.findByIdAndUpdate(
+                        card.list,
+                        { $pull: { cards: cardId } },
+                        { session: dbSession }
+                    );
+                    
+                    // 5. Update the card with new list and position
+                    await CardModel.updateOne(
+                        { _id: cardId },
+                        { 
+                            $set: { 
+                                list: new mongoose.Types.ObjectId(listId),
+                                position: newPos 
+                            }
+                        },
+                        { session: dbSession }
+                    );
+                }
+            });
+            
+            // Get updated card to return in response
+            const updatedCard = await CardModel.findById(cardId);
+            const response = new ApiResponse(200, updatedCard, "Card position updated successfully");
+            
+            return new Response(JSON.stringify(response), {
+                status: response.statusCode,
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+        } catch (error) {
+            console.error("Error in update card position transaction:", error);
+            
+            if (error instanceof Error) {
+                const errResponse = new ApiResponse(400, null, error.message);
                 return new Response(JSON.stringify(errResponse), {
                     status: errResponse.statusCode,
                     headers: { "Content-Type": "application/json" },
                 });
             }
-
-            const isSameList = card.list.toString() === listId
-
-            if (isSameList) {
-                const sameListCards = await CardModel.find({ list: card.list }).sort("position").session(session) as any
-
-                if (pos >= sameListCards.length) {
-                    await session.abortTransaction()
-                    await session.endSession()
-
-                    const errResponse = new ApiResponse(400, null, `Position should be less than ${sameListCards.length}`);
-                    return new Response(JSON.stringify(errResponse), {
-                        status: errResponse.statusCode,
-                        headers: { "Content-Type": "application/json" },
-                    });
-                }
-
-                const fromIndex = card.position
-                const toIndex = pos
-
-                sameListCards.splice(fromIndex, 1)
-                sameListCards.splice(toIndex, 0, card)
-
-                for (let i = 0; i < sameListCards.length; i++) {
-                    sameListCards[i].position = i
-                    await sameListCards[i].save({ session })
-                }
-            } else {
-                const oldListCards = await CardModel.find({ list: card.list }).sort("position").session(session) as any
-                for (let i = 0; i < oldListCards.length; i++) {
-                    if (oldListCards[i]._id.equals(card._id)) {
-                        oldListCards.splice(i, 1);
-                        break;
-                    }
-                }
-
-                for (let i = 0; i < oldListCards.length; i++) {
-                    oldListCards[i].position = i;
-                    await oldListCards[i].save({ session })
-                }
-
-                // Insert into new list (Reorder and insert)
-                const newListCards = await CardModel.find({ list: listId }).sort("position").session(session) as any
-                if (pos > newListCards.length) {
-                    await session.abortTransaction()
-                    await session.endSession()
-
-                    const errResponse = new ApiResponse(400, null, `Position should be less than or equal to ${newListCards.length}`);
-                    return new Response(JSON.stringify(errResponse), {
-                        status: errResponse.statusCode,
-                        headers: { "Content-Type": "application/json" },
-                    });
-                }
-
-                await ListModel.findByIdAndUpdate(
-                    listId,
-                    {
-                        $addToSet: {cards: cardId}
-                    },
-                    {new: true, session}
-                )
-
-                await ListModel.findByIdAndUpdate(
-                    card.list,
-                    {
-                        $pull: {cards: cardId}
-                    },
-                    {new: true, session}
-                )
-
-                newListCards.splice(pos, 0, card)
-                for (let i = 0; i < newListCards.length; i++) {
-                    newListCards[i].position = i
-                    if (newListCards[i]._id.equals(card._id)) {
-                        newListCards[i].list = new mongoose.Types.ObjectId(listId)
-
-                    }
-
-                    await newListCards[i].save({ session })
-                }
-            }
-
-
-            await session.commitTransaction()
-            await session.endSession()
-
-            const response = new ApiResponse(200, card, "Card position updated successfully")
-            return new Response(JSON.stringify(response), {
-                status: response.statusCode,
-                headers: { 'Content-Type': 'application/json' }
-            })
-        } catch (error) {
-            await session.abortTransaction()
-            await session.endSession()
-
-            const errResponse = new ApiResponse(404, null, "Failed to update card position");
+            
+            const errResponse = new ApiResponse(500, null, "Failed to update card position");
             return new Response(JSON.stringify(errResponse), {
                 status: errResponse.statusCode,
                 headers: { "Content-Type": "application/json" },
             });
+        } finally {
+            // Always end the session
+            await dbSession.endSession();
         }
     } catch (error) {
         console.log("Error updating card position", error);

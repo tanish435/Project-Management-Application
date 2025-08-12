@@ -20,7 +20,6 @@ import {
   Clock,
   MapPin,
   BookOpen,
-  Bug,
   Shield,
   Zap,
   Users,

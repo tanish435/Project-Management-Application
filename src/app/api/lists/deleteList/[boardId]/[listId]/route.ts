@@ -6,7 +6,7 @@ import { ApiResponse } from "@/utils/ApiResponse";
 import mongoose from "mongoose";
 import { getServerSession, User } from "next-auth";
 
-export async function DELETE(req: Request, { params }: { params: { listId: string, boardId: string } }) {
+export async function DELETE(req: Request, context: { params: Promise<{ listId: string, boardId: string}> }) {
     await dbConnect()
     const session = await getServerSession(authOptions);
     const user: User = session?.user as User
@@ -19,7 +19,7 @@ export async function DELETE(req: Request, { params }: { params: { listId: strin
         });
     }
 
-    const { listId, boardId } = params
+    const { listId, boardId } = await context.params
     if (!mongoose.Types.ObjectId.isValid(listId)) {
         const errResponse = new ApiResponse(400, null, "Invalid list ID");
         return new Response(JSON.stringify(errResponse), {
