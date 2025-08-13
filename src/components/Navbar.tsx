@@ -51,6 +51,7 @@ const Navbar = () => {
   const [boardLoading, setBoardLoading] = useState(false)
   const [starredBoards, setStarredBoards] = useState<Board[]>([])
   const [starredBoardLoading, setStarredBoardLoading] = useState(false)
+  const [isSigningOut, setIsSigningOut] = useState(false)
 
   const [boardsPagination, setBoardsPagination] = useState<PaginationState>({
     page: 1,
@@ -168,6 +169,33 @@ const Navbar = () => {
   const loadMoreStarredBoards = () => {
     if (starredPagination.hasMore && !starredBoardLoading) {
       fetchStarredBoards(starredPagination.page + 1, true)
+    }
+  }
+
+  // Improved sign-out handler
+  const handleSignOut = async () => {
+    try {
+      setIsSigningOut(true)
+      
+      // Sign out with proper configuration
+      await signOut({ 
+        callbackUrl: '/',
+        redirect: true // Force redirect after sign out
+      })
+      
+      // Clear local state
+      setUserData(null)
+      setBoards([])
+      setStarredBoards([])
+      setBoardsFetched(false)
+      setStarredBoardsFetched(false)
+      
+      toast.success('Signed out successfully')
+    } catch (error) {
+      console.error('Sign out error:', error)
+      toast.error('Failed to sign out')
+    } finally {
+      setIsSigningOut(false)
     }
   }
 
@@ -346,8 +374,19 @@ const Navbar = () => {
               <DropdownMenuItem>Support</DropdownMenuItem>
             </Link>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut()}>
-              Log out
+            <DropdownMenuItem 
+              onClick={handleSignOut} 
+              disabled={isSigningOut}
+              className="cursor-pointer"
+            >
+              {isSigningOut ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing out...
+                </>
+              ) : (
+                'Log out'
+              )}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
