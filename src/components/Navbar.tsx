@@ -1,6 +1,6 @@
 'use client'
 import { Session } from 'next-auth'
-import { getSession, signOut } from 'next-auth/react'
+import { getSession, signOut, useSession } from 'next-auth/react'
 import React, { useEffect, useState, useCallback } from 'react'
 import {
   DropdownMenu,
@@ -12,23 +12,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar"
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuList, NavigationMenuTrigger } from './ui/navigation-menu'
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from './ui/navigation-menu'
 import axios, { AxiosError } from 'axios'
 import { toast } from 'sonner'
 import { ApiResponse } from '@/utils/ApiResponse'
 import Link from 'next/link'
 import { ChevronDown, Loader2 } from 'lucide-react'
-import CreateBoardTemplate from './CreateBoardTemplate'
 import { Button } from './ui/button'
+import { useRouter } from 'next/navigation'
 
 interface Board {
   name: string,
@@ -52,6 +47,9 @@ const Navbar = () => {
   const [starredBoards, setStarredBoards] = useState<Board[]>([])
   const [starredBoardLoading, setStarredBoardLoading] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
+  const router = useRouter()
+  const {data: session} = useSession()
+  const username = session?.user?.username
 
   const [boardsPagination, setBoardsPagination] = useState<PaginationState>({
     page: 1,
@@ -172,24 +170,22 @@ const Navbar = () => {
     }
   }
 
-  // Improved sign-out handler
   const handleSignOut = async () => {
     try {
       setIsSigningOut(true)
-      
-      // Sign out with proper configuration
-      await signOut({ 
+
+      await signOut({
         callbackUrl: '/',
         redirect: true // Force redirect after sign out
       })
-      
+
       // Clear local state
       setUserData(null)
       setBoards([])
       setStarredBoards([])
       setBoardsFetched(false)
       setStarredBoardsFetched(false)
-      
+
       toast.success('Signed out successfully')
     } catch (error) {
       console.error('Sign out error:', error)
@@ -278,7 +274,7 @@ const Navbar = () => {
         <div className='flex items-center'>
 
           {/* <Logo className='mr-3' /> */}
-          <div className='flex gap-2 items-center justify-center mr-3'>
+          <div onClick={() => router.push('/')} className='flex gap-2 items-center justify-center mr-3'>
             <div className="bg-gradient-to-br from-blue-500 to-blue-700 rounded-md p-2">
               <svg
                 width="22"
@@ -338,17 +334,13 @@ const Navbar = () => {
                     />
                   </NavigationMenuContent>
                 </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                  <Button onClick={() => router.push(`/u/${username}/boards`)} className='bg-blue-400 text-black' variant="outline">Create</Button>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
-
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button className='bg-blue-400 text-black' variant="outline">Create</Button>
-              </PopoverTrigger>
-              <PopoverContent className="p-0">
-                <CreateBoardTemplate />
-              </PopoverContent>
-            </Popover>
           </div>
 
         </div>
@@ -374,8 +366,8 @@ const Navbar = () => {
               <DropdownMenuItem>Support</DropdownMenuItem>
             </Link>
             <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={handleSignOut} 
+            <DropdownMenuItem
+              onClick={handleSignOut}
               disabled={isSigningOut}
               className="cursor-pointer"
             >

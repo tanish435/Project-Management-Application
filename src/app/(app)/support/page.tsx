@@ -210,10 +210,6 @@ const SupportPage = () => {
                 <span>Email Service</span>
                 <Badge variant="default" className="bg-green-500">Operational</Badge>
               </div>
-              <Button variant="outline" size="sm" className="w-full mt-4">
-                View Status Page
-                <ExternalLink className="h-3 w-3 ml-1" />
-              </Button>
             </CardContent>
           </Card>
 
@@ -228,9 +224,7 @@ const SupportPage = () => {
               <div>
                 <h4 className="font-semibold">Headquarters</h4>
                 <p className="text-sm text-muted-foreground">
-                  123 Innovation Drive<br />
-                  San Francisco, CA 94107<br />
-                  United States
+                  Mumbai, Maharashtra
                 </p>
               </div>
               <div>

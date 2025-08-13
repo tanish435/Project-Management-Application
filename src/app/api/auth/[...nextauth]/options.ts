@@ -309,22 +309,18 @@ export const authOptions: NextAuthOptions = {
                 sameSite: 'lax',
                 path: '/',
                 secure: process.env.NODE_ENV === 'production',
-                // Remove hardcoded domain - let NextAuth handle it automatically
-                // This was causing the cookie issues in production
             }
         }
     },
-    // Uncomment and configure these for production
     pages: {
         signIn: '/sign-in',
         error: '/auth/error'
     },
     session: {
         strategy: 'jwt',
-        maxAge: 30 * 24 * 60 * 60, // 30 days
+        maxAge: 30 * 24 * 60 * 60, 
     },
     secret: process.env.NEXTAUTH_SECRET,
     debug: process.env.NODE_ENV === 'development',
-    // Add these configuration options for better production behavior
     useSecureCookies: process.env.NODE_ENV === 'production',
 }

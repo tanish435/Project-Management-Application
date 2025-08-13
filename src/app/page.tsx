@@ -31,7 +31,7 @@ export default function Home() {
 
           <div className="mt-6 flex gap-3">
             <Link href={`/u/${username}/boards`}>
-              <Button className="px-6 py-3" size="lg">Get started — it&apos;s free</Button>
+              <Button className="px-6 py-3 hover:bg-gray-800" size="lg">Get started — it&apos;s free</Button>
             </Link>
           </div>
 
