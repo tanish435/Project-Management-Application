@@ -30,6 +30,23 @@ Check it out here: [Live Demo](https://atlas-xi-seven.vercel.app)
 
 ---
 
+## 🕒 Realtime Collaboration
+
+This application uses **[Liveblocks](https://liveblocks.io/)** to enable real-time collaboration.  
+Multiple users can edit boards, lists, and cards simultaneously, with changes reflected instantly across all connected clients.
+
+**Key Benefits:**
+- Live cursors for each participant
+- Real-time list/card updates without page reload
+- Conflict-free data syncing
+
+### Liveblocks Setup (Development)
+1. Create a [Liveblocks](https://liveblocks.io/) account and project.
+2. Copy your **API key** from the dashboard.
+3. Add it to your `.env.local` file:
+   ```env
+   LIVEBLOCKS_SECRET_KEY=your_api_key_here
+
 ##  Getting Started
 
 ### Prerequisites
