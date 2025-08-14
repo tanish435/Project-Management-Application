@@ -269,7 +269,7 @@ const Navbar = () => {
   )
 
   return (
-    <div className='text-white h-16 w-full p-3 pl-7'>
+    <div className='text-white h-16 w-full p-3 pl-7 z-50'>
       <div className='flex items-center justify-between'>
         <div className='flex items-center'>
 
@@ -304,7 +304,7 @@ const Navbar = () => {
                   >
                     Recent
                   </NavigationMenuTrigger>
-                  <NavigationMenuContent className="bg-slate-800 text-gray-300 !border-none navigation-menu-content">
+                  <NavigationMenuContent className="bg-slate-800 text-gray-300 !border-none navigation-menu-content !z-50">
                     <BoardList
                       boards={boards}
                       loading={boardLoading}
@@ -325,7 +325,7 @@ const Navbar = () => {
                   >
                     Starred
                   </NavigationMenuTrigger>
-                  <NavigationMenuContent className="bg-slate-800 text-gray-300 !border-none navigation-menu-content">
+                  <NavigationMenuContent className="bg-slate-800 text-gray-300 !border-none navigation-menu-content !z-50">
                     <BoardList
                       boards={starredBoards}
                       loading={starredBoardLoading}

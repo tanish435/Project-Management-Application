@@ -194,7 +194,7 @@ const BoardSidebar = () => {
 
     return (
         <div className="">
-            <Sidebar className='h-full top-16 overflow-y-auto border-r bg-slate-800'>
+            <Sidebar className='h-full top-16 overflow-y-auto border-r bg-slate-900 z-10'>
                 <SidebarHeader className='px-3 mt-2 flex justify-center items-center'>
                     <div className='w-full'>{userData?.user.name}&apos;s Workspace</div>
                     <Separator className='bg-gray-400'/>

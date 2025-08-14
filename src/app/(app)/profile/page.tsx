@@ -70,7 +70,7 @@ const ProfilePage = () => {
       setLoading(true)
       const response = await axios.get('/api/users/getCurrentUser')
       const user = response.data.data
-      
+
       setUserData(user)
       setFormData({
         username: user.username,
@@ -81,7 +81,7 @@ const ProfilePage = () => {
         fullName: user.fullName
       })
       setPreviewUrl(user.avatar || '')
-      
+
     } catch (error) {
       console.error('Error fetching user data:', error)
       const axiosError = error as AxiosError<ApiResponse>
@@ -109,7 +109,7 @@ const ProfilePage = () => {
     try {
       setIsCheckingUsername(true)
       const response = await axios.get(`/api/users/check-username-unique?username=${username}`)
-      
+
       if (response.data.success) {
         setUsernameValid(true)
         setUsernameError('')
@@ -175,7 +175,7 @@ const ProfilePage = () => {
       const newAvatarUrl = response.data.data
       setUserData(prev => prev ? { ...prev, avatar: newAvatarUrl } : null)
       setSelectedFile(null)
-      
+
       // Update session data
       await updateSession({
         ...session,
@@ -192,7 +192,7 @@ const ProfilePage = () => {
       toast.error('Failed to update avatar', {
         description: axiosError.response?.data.message
       })
-      
+
       // Reset preview on error
       if (userData?.avatar) {
         setPreviewUrl(userData.avatar)
@@ -249,9 +249,9 @@ const ProfilePage = () => {
   }
 
   const hasChanges = () => {
-    return formData.username !== originalData.username || 
-           formData.fullName !== originalData.fullName ||
-           selectedFile !== null
+    return formData.username !== originalData.username ||
+      formData.fullName !== originalData.fullName ||
+      selectedFile !== null
   }
 
   const resetChanges = () => {
@@ -290,194 +290,196 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="container max-w-4xl mx-auto py-8 px-4">
-      <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Profile Settings</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage your account settings and profile information.
-          </p>
-        </div>
+    <div className="h-full overflow-y-auto">
+      <div className="container max-w-4xl mx-auto py-8 px-4">
+        <div className="space-y-6">
+          {/* Header */}
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Profile Settings</h1>
+            <p className="text-muted-foreground mt-2">
+              Manage your account settings and profile information.
+            </p>
+          </div>
 
-        <Separator />
+          <Separator />
 
-        {/* Avatar Section */}
-        {/* Fix upload on cloudinary issue */}
-        <Card className='bg-gray-800'>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Camera className="h-5 w-5" />
-              Profile Picture
-            </CardTitle>
-            <CardDescription>
-              Update your profile picture. Recommended size: 400x400px
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-6">
-              <div className="relative">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src={previewUrl} alt={userData.username} />
-                  <AvatarFallback className="text-lg">
-                    {userData.initials}
-                  </AvatarFallback>
-                </Avatar>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="absolute -bottom-2 -right-2 rounded-full h-8 w-8 p-0"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingAvatar}
-                >
-                  <Upload className="h-3 w-3" />
-                </Button>
-              </div>
-
-              <div className="flex-1 space-y-2">
-                <div className="flex gap-2">
+          {/* Avatar Section */}
+          {/* Fix upload on cloudinary issue */}
+          <Card className='bg-gray-800'>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Camera className="h-5 w-5" />
+                Profile Picture
+              </CardTitle>
+              <CardDescription>
+                Update your profile picture. Recommended size: 400x400px
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-6">
+                <div className="relative">
+                  <Avatar className="h-24 w-24">
+                    <AvatarImage src={previewUrl} alt={userData.username} />
+                    <AvatarFallback className="text-lg">
+                      {userData.initials}
+                    </AvatarFallback>
+                  </Avatar>
                   <Button
+                    size="sm"
                     variant="outline"
+                    className="absolute -bottom-2 -right-2 rounded-full h-8 w-8 p-0"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploadingAvatar}
                   >
-                    Choose File
+                    <Upload className="h-3 w-3" />
                   </Button>
-                  {selectedFile && (
+                </div>
+
+                <div className="flex-1 space-y-2">
+                  <div className="flex gap-2">
                     <Button
-                      onClick={handleAvatarUpload}
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
                       disabled={uploadingAvatar}
                     >
-                      {uploadingAvatar ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      ) : (
-                        <Save className="h-4 w-4 mr-2" />
-                      )}
-                      Save Avatar
+                      Choose File
                     </Button>
+                    {selectedFile && (
+                      <Button
+                        onClick={handleAvatarUpload}
+                        disabled={uploadingAvatar}
+                      >
+                        {uploadingAvatar ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        ) : (
+                          <Save className="h-4 w-4 mr-2" />
+                        )}
+                        Save Avatar
+                      </Button>
+                    )}
+                  </div>
+                  {selectedFile && (
+                    <p className="text-sm text-muted-foreground">
+                      Selected: {selectedFile.name}
+                    </p>
                   )}
-                </div>
-                {selectedFile && (
                   <p className="text-sm text-muted-foreground">
-                    Selected: {selectedFile.name}
+                    JPG, PNG or GIF. Max size 5MB.
                   </p>
-                )}
-                <p className="text-sm text-muted-foreground">
-                  JPG, PNG or GIF. Max size 5MB.
+                </div>
+              </div>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+            </CardContent>
+          </Card>
+
+          {/* Profile Information */}
+          <Card className='bg-gray-800'>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Profile Information
+              </CardTitle>
+              <CardDescription>
+                Update your personal information and username.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Email (Read-only) */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  Email Address
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={userData.email}
+                  disabled
+                  className="bg-muted"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Your email address cannot be changed.
                 </p>
               </div>
-            </div>
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-          </CardContent>
-        </Card>
-
-        {/* Profile Information */}
-        <Card className='bg-gray-800'>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Profile Information
-            </CardTitle>
-            <CardDescription>
-              Update your personal information and username.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Email (Read-only) */}
-            <div className="space-y-2">
-              <Label htmlFor="email" className="flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                Email Address
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={userData.email}
-                disabled
-                className="bg-muted"
-              />
-              <p className="text-xs text-muted-foreground">
-                Your email address cannot be changed.
-              </p>
-            </div>
-
-            {/* Username */}
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <div className="relative">
-                <Input
-                  id="username"
-                  value={formData.username}
-                  onChange={(e) => handleInputChange('username', e.target.value)}
-                  placeholder="Enter your username"
-                  className={usernameError ? 'border-red-500' : ''}
-                />
-                <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  {isCheckingUsername && (
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                  )}
-                  {!isCheckingUsername && formData.username !== originalData.username && (
-                    <>
-                      {usernameValid ? (
-                        <Check className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <X className="h-4 w-4 text-red-500" />
-                      )}
-                    </>
-                  )}
+              {/* Username */}
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <div className="relative">
+                  <Input
+                    id="username"
+                    value={formData.username}
+                    onChange={(e) => handleInputChange('username', e.target.value)}
+                    placeholder="Enter your username"
+                    className={usernameError ? 'border-red-500' : ''}
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {isCheckingUsername && (
+                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    )}
+                    {!isCheckingUsername && formData.username !== originalData.username && (
+                      <>
+                        {usernameValid ? (
+                          <Check className="h-4 w-4 text-green-500" />
+                        ) : (
+                          <X className="h-4 w-4 text-red-500" />
+                        )}
+                      </>
+                    )}
+                  </div>
                 </div>
+                {usernameError && (
+                  <p className="text-sm text-red-500">{usernameError}</p>
+                )}
+                {usernameValid && formData.username !== originalData.username && (
+                  <p className="text-sm text-green-600">Username is available!</p>
+                )}
               </div>
-              {usernameError && (
-                <p className="text-sm text-red-500">{usernameError}</p>
-              )}
-              {usernameValid && formData.username !== originalData.username && (
-                <p className="text-sm text-green-600">Username is available!</p>
-              )}
-            </div>
 
-            {/* Full Name */}
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                value={formData.fullName}
-                onChange={(e) => handleInputChange('fullName', e.target.value)}
-                placeholder="Enter your full name"
-              />
-            </div>
-
-            {/* Action Buttons */}
-            {hasChanges() && (
-              <div className="flex gap-3 pt-4 border-t">
-                <Button
-                  onClick={handleSaveProfile}
-                  disabled={saving || (formData.username !== originalData.username && !usernameValid)}
-                >
-                  {saving ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : (
-                    <Save className="h-4 w-4 mr-2" />
-                  )}
-                  Save Changes
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={resetChanges}
-                  disabled={saving}
-                >
-                  Cancel
-                </Button>
+              {/* Full Name */}
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  value={formData.fullName}
+                  onChange={(e) => handleInputChange('fullName', e.target.value)}
+                  placeholder="Enter your full name"
+                />
               </div>
-            )}
-          </CardContent>
-        </Card>
+
+              {/* Action Buttons */}
+              {hasChanges() && (
+                <div className="flex gap-3 pt-4 border-t">
+                  <Button
+                    onClick={handleSaveProfile}
+                    disabled={saving || (formData.username !== originalData.username && !usernameValid)}
+                  >
+                    {saving ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    Save Changes
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={resetChanges}
+                    disabled={saving}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )

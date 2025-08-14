@@ -22,7 +22,7 @@ const BoardContent = () => {
   const [isBoardLoading, setIsBoardLoading] = useState<boolean>(false)
   const [isStorageSyncing, setIsStorageSyncing] = useState<boolean>(false)
   const [lastBoardFetch, setLastBoardFetch] = useState<number>(0)
-  
+
   // Add fallback state to prevent board disappearing
   const [fallbackLists, setFallbackLists] = useState<List[] | null>(null)
 
@@ -393,29 +393,74 @@ const BoardContent = () => {
     );
   }
 
+  //   return (
+  //     <div className={`${bgColor}  min-h-full w-full pb-20`}>
+  //       <BoardNavbar
+  //         _id={boardData?._id as string}
+  //         members={members as User[]}
+  //         boardName={boardData?.name as string}
+  //       />
+
+  //       {/* Sync indicator */}
+  //       {/* {isStorageSyncing && (
+  //         <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-2 text-sm">
+  //           Synchronizing with latest changes...
+  //         </div>
+  //       )} */}
+
+  //       <ScrollArea className="h-max whitespace-nowrap overflow-x-auto">
+  //         <DragDropContext onDragEnd={onDragEnd}>
+  //           <Droppable droppableId='lists' type='list' direction='horizontal'>
+  //             {(provided) => (
+  //               <div
+  //                 {...provided.droppableProps}
+  //                 ref={provided.innerRef}
+  //                 className='flex w-max space-x-4 p-4'
+  //               >
+  //                 {displayLists && displayLists.map((list) => (
+  //                   <ListComponent
+  //                     boardMembers={members}
+  //                     listInfo={list}
+  //                     key={list._id}
+  //                   />
+  //                 ))}
+
+  //                 {provided.placeholder}
+
+  //                 <CreateListButton
+  //                   boardId={boardData?._id as string}
+  //                   currentUser={members.find(member =>
+  //                     member._id === self?.id
+  //                   )}
+  //                 />
+  //               </div>
+  //             )}
+  //           </Droppable>
+  //         </DragDropContext>
+  //         <ScrollBar orientation='horizontal' className="hidden" />
+  //       </ScrollArea>
+  //     </div>
+  //   );
+  // };
+
+
+
   return (
-    <div className={`${bgColor} h-full`}>
+    <div className={`${bgColor} h-full w-full pb-16`}>
       <BoardNavbar
         _id={boardData?._id as string}
         members={members as User[]}
         boardName={boardData?.name as string}
       />
 
-      {/* Sync indicator */}
-      {/* {isStorageSyncing && (
-        <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-2 text-sm">
-          Synchronizing with latest changes...
-        </div>
-      )} */}
-
-      <ScrollArea className="h-max whitespace-nowrap overflow-x-auto">
+      <ScrollArea className="h-[calc(100%-60px)] whitespace-nowrap overflow-x-auto">
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId='lists' type='list' direction='horizontal'>
             {(provided) => (
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className='flex w-max space-x-4 p-4'
+                className='flex w-max space-x-4 p-4 h-full'
               >
                 {displayLists && displayLists.map((list) => (
                   <ListComponent
@@ -441,6 +486,5 @@ const BoardContent = () => {
       </ScrollArea>
     </div>
   );
-};
-
+}
 export default BoardContent

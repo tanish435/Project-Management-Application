@@ -15,18 +15,30 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getServerSession(authOptions);
-  
+
   return (
+    // session ? (
+    //   <div className="bg-slate-900 px-24 flex min-h-screen justify-self-center items-start">
+    //     {/* <SidebarProvider> */}
+    //     <div className="flex flex-row w-full mx-auto  items-start mt-5">
+    //       <USidebar />
+    //       <div className="flex-1 bg-gray-900 p-6 rounded-lg">
+    //         {children}
+    //       </div>
+    //     </div>
+    //     {/* </SidebarProvider> */}
+    //   </div>
+    // ) : null
+
+
     session ? (
-      <div className="bg-slate-900 px-24 flex min-h-screen justify-self-center items-start">
-        {/* <SidebarProvider> */}
-        <div className="flex flex-row w-full mx-auto  items-start mt-5">
+      <div className="bg-slate-900 pl-24 flex h-full justify-self-center items-start">
+        <div className="flex flex-row w-full mx-auto items-start mt-5 h-full">
           <USidebar />
-          <div className="flex-1 bg-gray-900 p-6 rounded-lg">
+          <div className="flex-1 bg-gray-900 p-6 rounded-lg overflow-y-auto scrollbar-hide max-h-full">
             {children}
           </div>
         </div>
-        {/* </SidebarProvider> */}
       </div>
     ) : null
   )

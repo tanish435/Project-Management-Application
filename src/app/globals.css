@@ -10,8 +10,13 @@
 }
 
 .navigation-menu-content {
+  z-index: 60 !important;
   border: none !important;
   box-shadow: none !important;
+}
+
+[data-radix-navigation-menu-viewport] {
+  z-index: 60 !important;
 }
 
 @layer base {

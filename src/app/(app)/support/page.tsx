@@ -27,6 +27,7 @@ import {
   CheckCircle,
   ExternalLink
 } from 'lucide-react'
+import Link from 'next/link'
 
 const SupportPage = () => {
   const faqs = [
@@ -92,164 +93,168 @@ const SupportPage = () => {
   ]
 
   return (
-    <div className="container max-w-6xl mx-auto py-8 px-4">
-      <div className="space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-3">
-            <HelpCircle className="h-8 w-8 text-primary" />
-            <h1 className="text-4xl font-bold tracking-tight">Support Center</h1>
-          </div>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            We&apos;re here to help you get the most out of your experience. Find answers to common questions or get in touch with our support team.
-          </p>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardContent className="p-6 text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Clock className="h-5 w-5 text-green-500" />
-                <span className="text-2xl font-bold">24h</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Average Response Time</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6 text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Star className="h-5 w-5 text-yellow-500" />
-                <span className="text-2xl font-bold">4.9/5</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Support Satisfaction</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6 text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <CheckCircle className="h-5 w-5 text-blue-500" />
-                <span className="text-2xl font-bold">99.8%</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Issue Resolution Rate</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* FAQ Section */}
-        <section>
-          <h2 className="text-3xl font-bold mb-6">Frequently Asked Questions</h2>
-          <Card>
-            <CardContent className="p-0">
-              <Accordion type="single" collapsible className="w-full">
-                {faqs.map((faq, index) => (
-                  <AccordionItem key={index} value={`item-${index}`} className="px-6">
-                    <AccordionTrigger className="text-left hover:no-underline">
-                      {faq.question}
-                    </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground">
-                      {faq.answer}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </CardContent>
-          </Card>
-        </section>
-
-        {/* Additional Resources */}
-        <section>
-          <h2 className="text-3xl font-bold mb-6">Additional Resources</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {resources.map((resource, index) => {
-              const IconComponent = resource.icon
-              return (
-                <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardContent className="p-6 text-center space-y-4">
-                    <div className="mx-auto p-3 bg-primary/10 rounded-full w-fit">
-                      <IconComponent className="h-6 w-6 text-blue-500" />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="font-semibold">{resource.title}</h3>
-                      <p className="text-sm text-muted-foreground">{resource.description}</p>
-                    </div>
-                    <Button variant="ghost" size="sm" className="group">
-                      Learn More
-                      <ExternalLink className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-        </section>
-
-        {/* Status and Location */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-green-500" />
-                System Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span>Application</span>
-                <Badge variant="default" className="bg-green-500">Operational</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Database</span>
-                <Badge variant="default" className="bg-green-500">Operational</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>File Upload</span>
-                <Badge variant="default" className="bg-green-500">Operational</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Email Service</span>
-                <Badge variant="default" className="bg-green-500">Operational</Badge>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                Our Offices
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h4 className="font-semibold">Headquarters</h4>
-                <p className="text-sm text-muted-foreground">
-                  Mumbai, Maharashtra
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold">Support Hours</h4>
-                <p className="text-sm text-muted-foreground">
-                  Monday - Friday: 9:00 AM - 6:00 PM PST<br />
-                  Saturday - Sunday: 10:00 AM - 4:00 PM PST
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </section>
-
-        {/* Bottom CTA */}
-        <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-none">
-          <CardContent className="p-8 text-center">
-            <h3 className="text-2xl font-bold mb-4">Still Need Help?</h3>
-            <p className="mb-6 opacity-90">
-              Our support team is standing by to help you succeed. Don&apos;t hesitate to reach out!
+    <div className="h-full overflow-y-auto">
+      <div className="container max-w-6xl mx-auto py-8 px-4">
+        <div className="space-y-8">
+          {/* Header */}
+          <div className="text-center space-y-4">
+            <div className="flex items-center justify-center gap-3">
+              <HelpCircle className="h-8 w-8 text-primary" />
+              <h1 className="text-4xl font-bold tracking-tight">Support Center</h1>
+            </div>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              We&apos;re here to help you get the most out of your experience. Find answers to common questions or get in touch with our support team.
             </p>
-            <Button size="lg" variant="secondary">
-              Contact Support Team
-            </Button>
-          </CardContent>
-        </Card>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Clock className="h-5 w-5 text-green-500" />
+                  <span className="text-2xl font-bold">24h</span>
+                </div>
+                <p className="text-sm text-muted-foreground">Average Response Time</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Star className="h-5 w-5 text-yellow-500" />
+                  <span className="text-2xl font-bold">4.9/5</span>
+                </div>
+                <p className="text-sm text-muted-foreground">Support Satisfaction</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <CheckCircle className="h-5 w-5 text-blue-500" />
+                  <span className="text-2xl font-bold">99.8%</span>
+                </div>
+                <p className="text-sm text-muted-foreground">Issue Resolution Rate</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* FAQ Section */}
+          <section>
+            <h2 className="text-3xl font-bold mb-6">Frequently Asked Questions</h2>
+            <Card>
+              <CardContent className="p-0">
+                <Accordion type="single" collapsible className="w-full">
+                  {faqs.map((faq, index) => (
+                    <AccordionItem key={index} value={`item-${index}`} className="px-6">
+                      <AccordionTrigger className="text-left hover:no-underline">
+                        {faq.question}
+                      </AccordionTrigger>
+                      <AccordionContent className="text-muted-foreground">
+                        {faq.answer}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* Additional Resources */}
+          <section>
+            <h2 className="text-3xl font-bold mb-6">Additional Resources</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {resources.map((resource, index) => {
+                const IconComponent = resource.icon
+                return (
+                  <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
+                    <CardContent className="p-6 text-center space-y-4">
+                      <div className="mx-auto p-3 bg-primary/10 rounded-full w-fit">
+                        <IconComponent className="h-6 w-6 text-blue-500" />
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="font-semibold">{resource.title}</h3>
+                        <p className="text-sm text-muted-foreground">{resource.description}</p>
+                      </div>
+                      <Button variant="ghost" size="sm" className="group">
+                        Learn More
+                        <ExternalLink className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          </section>
+
+          {/* Status and Location */}
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-green-500" />
+                  System Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span>Application</span>
+                  <Badge variant="default" className="bg-green-500">Operational</Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Database</span>
+                  <Badge variant="default" className="bg-green-500">Operational</Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>File Upload</span>
+                  <Badge variant="default" className="bg-green-500">Operational</Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Email Service</span>
+                  <Badge variant="default" className="bg-green-500">Operational</Badge>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  Our Offices
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <h4 className="font-semibold">Headquarters</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Mumbai, Maharashtra
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-semibold">Support Hours</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Monday - Friday: 9:00 AM - 6:00 PM PST<br />
+                    Saturday - Sunday: 10:00 AM - 4:00 PM PST
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* Bottom CTA */}
+          <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-none">
+            <CardContent className="p-8 text-center">
+              <h3 className="text-2xl font-bold mb-4">Still Need Help?</h3>
+              <p className="mb-6 opacity-90">
+                Our support team is standing by to help you succeed. Don&apos;t hesitate to reach out!
+              </p>
+              <Link href="https://www.linkedin.com/in/tanishrai28/" target="_blank" rel="noopener noreferrer">
+                <Button size="lg" variant="secondary">
+                  Contact Support Team
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )
