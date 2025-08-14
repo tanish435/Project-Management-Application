@@ -1,4 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Project-Management-Application
+
+A modern, responsive web app built with **Next.js** and **TypeScript** for managing projects, boards, lists, and cards.
+
+---
+
+##  Live Demo  
+Check it out here: [Live Demo](https://atlas-xi-seven.vercel.app)
+
+---
+
+##  Features
+
+- **Create**, **read**, **update**, and **delete** boards, lists, and cards  
+- Built with **Next.js** (React-based framework) and **TypeScript** for enhanced developer experience  
+- Leveraging **Tailwind CSS** for sleek, responsive styling  
+- Designed with an intuitive UI for efficient project tracking
+
+---
+
+##  Technologies Used
+
+| Technology     | Purpose                             |
+|----------------|-------------------------------------|
+| Next.js        | Framework for React & SSR           |
+| TypeScript     | Type-safe development               |
+| Tailwind CSS   | Utility-first CSS styling           |
+| ESLint         | Code linting & quality tooling      |
+| Vercel         | Deployment platform                 |
+
+---
+
+##  Getting Started
+
+### Prerequisites
+
+Ensure you have one of the following installed:
+
+- Node.js (v14 or later) + npm  
+- Yarn  
+- pnpm  
+- bun
+
+### Installation & Running Locally
+
+1. **Clone the repository**  
+   ```bash
+   git clone https://github.com/tanish435/Project-Management-Application.git
+   cd Project-Management-Application
+
 
 ## Getting Started
 
@@ -25,20 +74,3 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 To learn more about Next.js, take a look at the following resources:
 
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-Get board lists
-
-Pending testing:-
-# Testing through postman wont be efficient so during frontend development testing can be done
-deleteBoard
-deleteList
-deleteCard
